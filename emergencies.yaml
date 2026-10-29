@@ -1,0 +1,101 @@
+# Oncology emergency triage rules.
+#
+# These patterns run before retrieval. A match streams an action banner as the
+# first event so that an emergency is never delayed by search or generation.
+# Actions are deliberately generic, point to UK guidance, and never include a
+# drug dose. Local acute oncology policy always takes precedence.
+version: 2
+last_reviewed: "2026-10-29"
+review_status: "pending clinical review"
+
+categories:
+  neutropenic_sepsis:
+    title: "Suspected neutropenic sepsis"
+    patterns:
+      - "(fever|febrile|temperature|temp|pyrexi\\w*|rigors?)\\b.{0,80}\\b(chemo\\w*|sact|cycle|day \\d+|neutropeni\\w*|neutrophils?)"
+      - "(chemo\\w*|sact|neutropeni\\w*)\\b.{0,80}\\b(fever|febrile|temperature of 3[89]|pyrexi\\w*|rigors?|unwell|septic)"
+      - "neutropenic (sepsis|fever)"
+      - "(carboplatin|cisplatin|pemetrexed|docetaxel|paclitaxel|etoposide|topotecan|gemcitabine|vinorelbine|day \\d+ of cycle|day \\d+)\\b.{0,80}\\b(fever|febrile|temperature|temp|pyrexi\\w*|rigors?)"
+      - "febrile neutropeni\\w*"
+    actions:
+      - "Treat as an acute medical emergency and assess immediately through the acute oncology or emergency pathway."
+      - "Start empirical intravenous antibiotics without waiting for the neutrophil count, following the local neutropenic sepsis policy."
+      - "Take blood cultures, full blood count and lactate, and assess for sepsis using NEWS2."
+    guidance: ["NICE CG151 Neutropenic sepsis", "UKONS 24 hour triage tool"]
+
+  spinal_cord_compression:
+    title: "Suspected metastatic spinal cord compression"
+    patterns:
+      - "(back|spinal|thoracic spine|neck) pain\\b.{0,100}\\b(weak\\w*|numb\\w*|tingling|leg|legs|bladder|bowel|incontinen\\w*|retention|saddle)"
+      - "(cord compression|mscc|cauda equina)"
+      - "(new|progressive) (leg )?weakness.{0,60}(metasta\\w*|spine|vertebra\\w*)"
+    actions:
+      - "Contact the metastatic spinal cord compression coordinator or acute oncology team immediately."
+      - "Arrange urgent whole spine MRI as set out in NICE NG234."
+      - "Nurse flat with neutral spinal alignment if mechanical instability is suspected, pending senior review."
+    guidance: ["NICE NG234 Spinal metastases and metastatic spinal cord compression"]
+
+  svco:
+    title: "Suspected superior vena cava obstruction"
+    patterns:
+      - "(svco|svc obstruction|superior vena cava)"
+      - "(facial|face|neck|arm) (swelling|oedema|edema).{0,80}(breathless\\w*|dyspn\\w*|distended|veins|stridor)"
+    actions:
+      - "Seek same day review by the acute oncology and lung cancer teams."
+      - "Stridor or airway compromise is an emergency: call for airway support immediately."
+      - "Treatment depends on histology, stage and performance status and may include stenting, chemotherapy or radiotherapy (NICE NG122 recommendations 1.15.7 and 1.15.8)."
+    guidance: ["NICE NG122 recommendations 1.15.7 to 1.15.8"]
+
+  airway_obstruction:
+    title: "Airway obstruction or major haemoptysis"
+    patterns:
+      - "\\bstridor\\b"
+      - "(massive|major|large|catastrophic|frank) (haemoptysis|hemoptysis|bleeding from the (lung|airway))"
+      - "coughing up (a lot of|large amounts of|cupfuls of) blood"
+      - "(impending|critical) airway"
+    actions:
+      - "Call the emergency team now; position the patient with the bleeding side down if the side is known."
+      - "Request urgent respiratory and interventional bronchoscopy input (NICE NG122 recommendations 1.14.1 to 1.14.3)."
+    guidance: ["NICE NG122 recommendations 1.14.1 to 1.14.3", "Resuscitation Council UK"]
+
+  hypercalcaemia:
+    title: "Suspected hypercalcaemia of malignancy"
+    patterns:
+      - "(hypercalcaemi\\w*|hypercalcemi\\w*)"
+      - "(adjusted|corrected) calcium.{0,20}(3\\.[0-9]|[4-9]\\.[0-9])"
+      - "high calcium.{0,60}(confus\\w*|drows\\w*|vomit\\w*|thirst\\w*)"
+    actions:
+      - "Check adjusted calcium, renal function and ECG, and seek same day acute oncology advice."
+      - "Severe or symptomatic hypercalcaemia needs urgent intravenous rehydration under medical supervision."
+    guidance: ["Local acute oncology policy"]
+
+  immune_toxicity:
+    title: "Possible severe immune related adverse event"
+    patterns:
+      - "(pembrolizumab|nivolumab|atezolizumab|durvalumab|ipilimumab|cemiplimab|immunotherapy|checkpoint)\\b.{0,100}\\b(diarrh\\w*|colitis|breathless\\w*|pneumonitis|hepatitis|jaundice|myocarditis|chest pain|weakness|ptosis|hypotension|vomiting)"
+      - "(diarrh\\w*|colitis|pneumonitis|myocarditis|hepatitis)\\b.{0,100}\\b(pembrolizumab|nivolumab|atezolizumab|durvalumab|ipilimumab|cemiplimab|immunotherapy|checkpoint)"
+    actions:
+      - "Hold the checkpoint inhibitor and contact the treating oncology team or acute oncology service today."
+      - "Grade the toxicity and follow the local immunotherapy toxicity protocol; myocarditis, severe colitis and pneumonitis need emergency admission."
+    guidance: ["UKONS 24 hour triage tool", "Local immunotherapy toxicity protocol"]
+
+  raised_icp:
+    title: "Possible raised intracranial pressure from brain metastases"
+    patterns:
+      - "(brain metasta\\w*|cerebral metasta\\w*|brain mets)\\b.{0,100}\\b(headache|vomit\\w*|confus\\w*|seizure|fit|drows\\w*|reduced consciousness)"
+      - "(new seizure|first seizure|reduced (gcs|consciousness))"
+    actions:
+      - "Arrange same day medical assessment and urgent brain imaging."
+      - "Corticosteroids for symptomatic brain metastases are given at the lowest effective dose under specialist advice (NICE NG122 recommendation 1.16.1)."
+    guidance: ["NICE NG122 recommendations 1.16.1 to 1.16.2", "NICE NG99"]
+
+  anaphylaxis:
+    title: "Suspected anaphylaxis or severe infusion reaction"
+    patterns:
+      - "anaphyla\\w*"
+      - "(infusion|hypersensitivity) reaction.{0,60}(wheez\\w*|stridor|hypotension|collapse|swelling)"
+      - "(throat|tongue|lip) swelling.{0,60}(infusion|drug|chemo\\w*)"
+    actions:
+      - "Stop the infusion and call for help; follow the Resuscitation Council UK anaphylaxis algorithm."
+      - "Intramuscular adrenaline is the first line treatment for anaphylaxis; give it without delay according to the algorithm."
+    guidance: ["Resuscitation Council UK emergency treatment of anaphylaxis"]

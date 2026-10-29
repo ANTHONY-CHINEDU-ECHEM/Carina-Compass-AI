@@ -1,0 +1,202 @@
+# Medication safety rules for systemic anticancer therapy in lung cancer.
+#
+# Each rule pairs a planned treatment (a drug or a class from lexicon.yaml) with
+# a co medication, condition or allergy in the de identified patient context.
+# Sources name the SmPC section that carries the warning so the reviewer can
+# check the exact wording on the electronic Medicines Compendium. The screen
+# raises flags for the MDT; it never blocks treatment on its own.
+version: 2
+last_reviewed: "2026-10-29"
+review_status: "pending clinical review"
+
+severity_order: [contraindicated, major, moderate, monitor]
+
+rules:
+  - id: lorlatinib_strong_inducer
+    planned: [lorlatinib]
+    with_medicine_class: strong_cyp3a_inducer
+    severity: contraindicated
+    message: "Strong CYP3A4/5 inducers are contraindicated with lorlatinib because of serious hepatotoxicity reported with rifampicin."
+    source: "Lorlatinib SmPC sections 4.3 and 4.5"
+
+  - id: tki_strong_inducer
+    planned_class: [egfr_tki, alk_tki, ros1_tki, kras_g12c_inhibitor, ret_inhibitor, met_inhibitor]
+    with_medicine_class: strong_cyp3a_inducer
+    severity: major
+    message: "Strong CYP3A inducers can markedly lower exposure to this targeted therapy and should be avoided where possible."
+    source: "SmPC section 4.5 of the planned medicine"
+
+  - id: tki_strong_inhibitor
+    planned_class: [alk_tki, ros1_tki, ret_inhibitor, met_inhibitor]
+    with_medicine_class: strong_cyp3a_inhibitor
+    severity: major
+    message: "Strong CYP3A inhibitors can raise exposure to this targeted therapy; avoid or follow the dose modification advice in the SmPC."
+    source: "SmPC section 4.5 of the planned medicine"
+
+  - id: acid_reducer_absorption
+    planned: [erlotinib, gefitinib, sotorasib]
+    with_medicine_class: acid_reducing
+    severity: major
+    message: "Proton pump inhibitors and H2 receptor antagonists reduce absorption of this medicine; avoid or follow the timing advice in the SmPC."
+    source: "SmPC section 4.5 of the planned medicine"
+
+  - id: qt_prolongation
+    planned: [osimertinib, crizotinib, ceritinib, entrectinib, selpercatinib, vandetanib]
+    with_medicine_class: qt_prolonging
+    severity: major
+    message: "Both medicines can prolong the QT interval; check a baseline ECG and electrolytes and monitor during treatment."
+    source: "SmPC section 4.4 of the planned medicine"
+
+  - id: bradycardia
+    planned: [crizotinib, ceritinib, alectinib, brigatinib]
+    with_medicine_class: bradycardic
+    severity: moderate
+    message: "This ALK inhibitor can cause bradycardia; combined rate lowering medicines increase the risk. Monitor heart rate and blood pressure."
+    source: "SmPC section 4.4 of the planned medicine"
+
+  - id: ild_history_tki_adc
+    planned: [osimertinib, erlotinib, gefitinib, afatinib, dacomitinib, brigatinib, trastuzumab deruxtecan, amivantamab]
+    with_condition: [interstitial lung disease, pulmonary fibrosis, pneumonitis, ild, drug induced pneumonitis]
+    severity: major
+    message: "Pre existing interstitial lung disease raises the risk of treatment related pneumonitis or ILD with this medicine; clinical trials excluded most such patients."
+    source: "SmPC section 4.4 of the planned medicine"
+
+  - id: checkpoint_autoimmune
+    planned_class: [checkpoint_inhibitor]
+    with_condition: [rheumatoid arthritis, lupus, systemic lupus erythematosus, crohns disease, ulcerative colitis, inflammatory bowel disease, multiple sclerosis, myasthenia gravis, psoriasis, autoimmune hepatitis, type 1 diabetes, autoimmune thyroid disease, sarcoidosis]
+    severity: major
+    message: "Active or previous autoimmune disease can flare on checkpoint inhibitors; such patients were largely excluded from trials. Discuss with the relevant specialty before starting."
+    source: "SmPC section 4.4 of the planned checkpoint inhibitor"
+
+  - id: checkpoint_transplant
+    planned_class: [checkpoint_inhibitor]
+    with_condition: [solid organ transplant, kidney transplant, renal transplant, liver transplant, heart transplant, allogeneic stem cell transplant]
+    severity: major
+    message: "Checkpoint inhibitors can precipitate rejection of a transplanted organ."
+    source: "SmPC section 4.4 of the planned checkpoint inhibitor"
+
+  - id: checkpoint_baseline_steroids
+    planned_class: [checkpoint_inhibitor]
+    with_medicine_class: systemic_corticosteroid
+    severity: moderate
+    message: "Systemic corticosteroids at baseline may blunt the response to checkpoint inhibitors; confirm the indication and dose before starting."
+    source: "SmPC section 4.5 of the planned checkpoint inhibitor"
+
+  - id: checkpoint_ild
+    planned_class: [checkpoint_inhibitor]
+    with_condition: [interstitial lung disease, pulmonary fibrosis, pneumonitis, ild]
+    severity: major
+    message: "Pre existing interstitial lung disease increases the risk of immune related pneumonitis."
+    source: "SmPC section 4.4 of the planned checkpoint inhibitor"
+
+  - id: pemetrexed_vitamin_supplementation
+    planned: [pemetrexed]
+    always: true
+    severity: monitor
+    message: "Pemetrexed requires folic acid and vitamin B12 supplementation and corticosteroid premedication to reduce toxicity."
+    source: "Pemetrexed SmPC sections 4.2 and 4.4"
+
+  - id: pemetrexed_nsaid_renal
+    planned: [pemetrexed]
+    with_medicine_class: nsaid
+    severity: major
+    message: "NSAIDs reduce pemetrexed clearance; avoid around each dose, particularly with mild to moderate renal impairment."
+    source: "Pemetrexed SmPC section 4.5"
+
+  - id: pemetrexed_low_crcl
+    planned: [pemetrexed]
+    crcl_below: 45
+    severity: contraindicated
+    message: "Pemetrexed is not recommended when creatinine clearance is below 45 mL/min."
+    source: "Pemetrexed SmPC section 4.2"
+
+  - id: cisplatin_low_crcl
+    planned: [cisplatin]
+    crcl_below: 60
+    severity: major
+    message: "Cisplatin is nephrotoxic; with creatinine clearance below 60 mL/min consider carboplatin or a dose modification under the local protocol."
+    source: "Cisplatin SmPC section 4.4 and local SACT protocol"
+
+  - id: cisplatin_nephrotoxic
+    planned: [cisplatin]
+    with_medicine_class: nephrotoxic
+    severity: major
+    message: "Concurrent nephrotoxic medicines add to the renal toxicity of cisplatin."
+    source: "Cisplatin SmPC section 4.5"
+
+  - id: cisplatin_hearing
+    planned: [cisplatin]
+    with_condition: [hearing loss, hearing impairment, tinnitus, deafness]
+    severity: moderate
+    message: "Cisplatin is ototoxic; baseline audiometry and a carboplatin alternative should be considered."
+    source: "Cisplatin SmPC section 4.4"
+
+  - id: platinum_neuropathy
+    planned: [cisplatin, paclitaxel, nab paclitaxel, vinorelbine]
+    with_condition: [peripheral neuropathy, neuropathy]
+    severity: moderate
+    message: "Pre existing peripheral neuropathy may worsen with this cytotoxic."
+    source: "SmPC section 4.4 of the planned medicine"
+
+  - id: warfarin_chemotherapy
+    planned_class: [cytotoxic, platinum]
+    with_medicine: [warfarin]
+    severity: moderate
+    message: "INR control is often unstable during chemotherapy; monitor INR closely or consider a low molecular weight heparin."
+    source: "BNF interactions for warfarin with cytotoxics"
+
+  - id: live_vaccine_immunosuppression
+    planned_class: [cytotoxic, platinum, checkpoint_inhibitor]
+    with_medicine_class: live_vaccine
+    severity: contraindicated
+    message: "Live vaccines should not be given during immunosuppressive chemotherapy."
+    source: "UKHSA Green Book chapter 6 and SmPC section 4.5"
+
+  - id: paclitaxel_hypersensitivity
+    planned: [paclitaxel]
+    with_allergy: [paclitaxel, macrogolglycerol ricinoleate, cremophor, polyoxyl castor oil]
+    severity: contraindicated
+    message: "Hypersensitivity to paclitaxel or its castor oil excipient is a contraindication."
+    source: "Paclitaxel SmPC section 4.3"
+
+  - id: platinum_allergy
+    planned_class: [platinum]
+    with_allergy: [carboplatin, cisplatin, platinum, oxaliplatin]
+    severity: contraindicated
+    message: "Previous hypersensitivity to a platinum compound; discuss desensitisation or an alternative with the oncologist."
+    source: "SmPC section 4.3 of the planned platinum"
+
+  - id: lorlatinib_lipids
+    planned: [lorlatinib]
+    with_condition: [hypercholesterolaemia, hyperlipidaemia, hypertriglyceridaemia]
+    severity: monitor
+    message: "Lorlatinib commonly raises cholesterol and triglycerides; check lipids at baseline and during treatment."
+    source: "Lorlatinib SmPC section 4.4"
+
+  - id: brigatinib_early_pulmonary
+    planned: [brigatinib]
+    always: true
+    severity: monitor
+    message: "Early onset pulmonary adverse events can occur in the first week; the SmPC lead in schedule applies."
+    source: "Brigatinib SmPC sections 4.2 and 4.4"
+
+  - id: osimertinib_cardiac
+    planned: [osimertinib]
+    with_condition: [heart failure, reduced ejection fraction, cardiomyopathy, long qt, long qt syndrome]
+    severity: major
+    message: "Osimertinib has been associated with QTc prolongation and reduced ejection fraction; assess cardiac function before and during treatment."
+    source: "Osimertinib SmPC section 4.4"
+
+  - id: bevacizumab_haemoptysis
+    planned: [bevacizumab]
+    with_condition: [haemoptysis, squamous histology, cavitating tumour]
+    severity: contraindicated
+    message: "Bevacizumab carries a risk of severe pulmonary haemorrhage; recent haemoptysis or squamous histology rules it out."
+    source: "Bevacizumab SmPC section 4.4"
+
+  - id: anticoagulant_bevacizumab
+    planned: [bevacizumab, ramucirumab]
+    with_medicine_class: anticoagulant
+    severity: moderate
+    message: "Anti angiogenic therapy raises bleeding risk with anticoagulation; review the bleeding history."
+    source: "SmPC section 4.4 of the planned medicine"

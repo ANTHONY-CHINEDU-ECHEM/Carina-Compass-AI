@@ -1,0 +1,28 @@
+# Guidance supersession graph.
+#
+# When a newer appraisal or edition replaces an older one, the older document
+# is still indexed (it explains past decisions) but it is demoted in ranking,
+# labelled in the interface and the model is told not to present it as current.
+version: 2
+last_reviewed: "2026-10-29"
+review_status: "pending clinical review"
+
+edges:
+  - old: CG121
+    new: NG122
+    note: "NICE CG121 Lung cancer: diagnosis and management (2011) was replaced by NG122 in March 2019."
+  - old: CG24
+    new: CG121
+    note: "NICE CG24 was replaced by CG121 in 2011."
+  - old: TA761
+    new: TA1043
+    note: "Adjuvant osimertinib: TA761 was replaced by TA1043, which stops treatment at 3 years."
+  - old: TA416
+    new: TA653
+    note: "Osimertinib for EGFR T790M: the Cancer Drugs Fund appraisal TA416 was replaced by TA653."
+  - old: TA447
+    new: TA531
+    note: "First line pembrolizumab for PD L1 positive NSCLC: TA447 was replaced by TA531 after Cancer Drugs Fund review."
+  - old: TNM8
+    new: TNM9
+    note: "The 9th edition TNM classification for lung cancer (IASLC, UICC, AJCC version 9) splits N2 into N2a and N2b and M1c into M1c1 and M1c2."

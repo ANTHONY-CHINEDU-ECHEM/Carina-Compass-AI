@@ -1,0 +1,526 @@
+# Biomarker and setting matched systemic treatment options for lung cancer.
+#
+# Every option names the NICE technology appraisal (TA) or NICE guideline
+# recommendation that governs NHS use in England. TA numbers and titles were
+# checked against the NICE lung cancer product listing and NICE NG122 (last
+# updated 8 March 2024, with links to newer appraisals added February 2026).
+#
+# nice_status values
+#   recommended       routinely commissioned option in England for the population described
+#   recommended_cdf   available through the Cancer Drugs Fund
+#   not_recommended   NICE does not recommend it for this population
+#   terminated        NICE terminated the appraisal, so there is no recommendation
+#   see_appraisal     consult the appraisal for the exact recommendation and restrictions
+#
+# This file lists options, never doses. Doses come from the SmPC and the local
+# SACT protocol. A clinician must review every change and update last_reviewed.
+version: 3
+last_reviewed: "2026-10-29"
+review_status: "pending clinical review"
+verified_against:
+  - "NICE lung cancer products listing (technology appraisals)"
+  - "NICE NG122 Lung cancer: diagnosis and management"
+
+options:
+  # Early stage and locally advanced NSCLC
+  - id: neoadj_nivolumab_chemo
+    setting: neoadjuvant
+    histology: nsclc
+    biomarkers_excluded: [EGFR_COMMON, ALK]
+    regimen: "Nivolumab with platinum based chemotherapy before surgery"
+    drugs: [nivolumab, carboplatin, cisplatin]
+    nice: {reference: TA876, status: recommended}
+    guideline: "NG122 recommendation 1.6.8"
+    evidence: {trial: "CheckMate 816", pmid: "35403841"}
+    notes: "Resectable NSCLC; discuss at the thoracic MDT with a thoracic surgeon and oncologist."
+
+  - id: periop_durvalumab_chemo
+    setting: perioperative
+    histology: nsclc
+    biomarkers_excluded: [EGFR_COMMON, ALK]
+    regimen: "Durvalumab with platinum based chemotherapy before surgery, then durvalumab alone after surgery"
+    drugs: [durvalumab, carboplatin, cisplatin]
+    nice: {reference: TA1030, status: recommended}
+    guideline: "NG122 recommendation 1.6.9"
+    notes: "Resectable NSCLC without EGFR or ALK alterations."
+
+  - id: periop_pembrolizumab_chemo
+    setting: perioperative
+    histology: nsclc
+    regimen: "Pembrolizumab with platinum based chemotherapy before surgery, then pembrolizumab alone after surgery"
+    drugs: [pembrolizumab, cisplatin]
+    nice: {reference: TA1017, status: recommended}
+    guideline: "NG122 recommendation 1.6.10"
+    notes: "Resectable NSCLC at high risk of recurrence."
+
+  - id: adjuvant_platinum
+    setting: adjuvant
+    histology: nsclc
+    ps_max: 1
+    regimen: "Platinum based combination chemotherapy after complete resection"
+    drugs: [cisplatin, vinorelbine]
+    guideline: "NG122 recommendations 1.6.11 to 1.6.13"
+    nice: {reference: NG122, status: recommended}
+    notes: "Offer for WHO performance status 0 to 1 with T1a to T4, N1 to N2, M0 disease; consider for T2b to T4, N0, M0 tumours larger than 4 cm."
+
+  - id: adjuvant_osimertinib
+    setting: adjuvant
+    histology: nsclc
+    biomarkers_any: [EGFR_COMMON]
+    regimen: "Osimertinib after complete resection, stopped at 3 years"
+    drugs: [osimertinib]
+    nice: {reference: TA1043, status: recommended}
+    guideline: "NG122 recommendation 1.6.14"
+    evidence: {trial: "ADAURA", pmid: "32955177"}
+    notes: "Completely resected stage IB to IIIA disease with EGFR exon 19 deletion or exon 21 L858R substitution. Replaces TA761."
+
+  - id: adjuvant_alectinib
+    setting: adjuvant
+    histology: nsclc
+    biomarkers_any: [ALK]
+    regimen: "Alectinib after complete resection"
+    drugs: [alectinib]
+    nice: {reference: TA1014, status: recommended}
+    guideline: "NG122 recommendation 1.6.15"
+    evidence: {trial: "ALINA", pmid: "38598794"}
+    notes: "ALK positive, completely resected stage IB (tumour at least 4 cm) to IIIA disease."
+
+  - id: adjuvant_immunotherapy
+    setting: adjuvant
+    histology: nsclc
+    biomarkers_excluded: [EGFR_COMMON, ALK]
+    regimen: "Atezolizumab or pembrolizumab after resection and adjuvant chemotherapy in defined high risk groups"
+    drugs: [atezolizumab, pembrolizumab]
+    nice: {reference: "TA1071 and TA1037", status: see_appraisal}
+    guideline: "NG122 recommendation 1.6.16"
+    evidence: {trial: "IMpower010", pmid: "34555333"}
+    notes: "Each appraisal restricts use by stage and PD L1 status; check the eligible population."
+
+  - id: consolidation_durvalumab
+    setting: consolidation_after_crt
+    histology: nsclc
+    pdl1_min: 1
+    regimen: "Durvalumab maintenance after platinum based chemoradiotherapy without progression"
+    drugs: [durvalumab]
+    nice: {reference: TA798, status: recommended}
+    guideline: "NG122 recommendation 1.6.18"
+    notes: "Unresectable stage III NSCLC with PD L1 expression on at least 1% of tumour cells."
+
+  - id: stage3_chemoradiotherapy
+    setting: unresectable_stage3
+    histology: nsclc
+    regimen: "Concurrent platinum based chemoradiotherapy"
+    drugs: [cisplatin, carboplatin]
+    nice: {reference: NG122, status: recommended}
+    guideline: "NG122 recommendation 1.6.17"
+    notes: "Consider for stage II to III disease unsuitable for surgery, balancing survival benefit against toxicity."
+
+  # Advanced NSCLC, EGFR
+  - id: egfr_osimertinib_first
+    setting: advanced_first_line
+    histology: nsclc
+    biomarkers_any: [EGFR_COMMON]
+    regimen: "Osimertinib monotherapy"
+    drugs: [osimertinib]
+    nice: {reference: TA654, status: recommended}
+    evidence: {trial: "FLAURA", pmid: "29151359"}
+    rank: 1
+
+  - id: egfr_dacomitinib_first
+    setting: advanced_first_line
+    histology: nsclc
+    biomarkers_any: [EGFR_COMMON]
+    regimen: "Dacomitinib monotherapy"
+    drugs: [dacomitinib]
+    nice: {reference: TA595, status: recommended}
+    rank: 2
+
+  - id: egfr_afatinib_first
+    setting: advanced_first_line
+    histology: nsclc
+    biomarkers_any: [EGFR_COMMON]
+    regimen: "Afatinib monotherapy"
+    drugs: [afatinib]
+    nice: {reference: TA310, status: recommended}
+    rank: 3
+
+  - id: egfr_erlotinib_first
+    setting: advanced_first_line
+    histology: nsclc
+    biomarkers_any: [EGFR_COMMON]
+    regimen: "Erlotinib monotherapy"
+    drugs: [erlotinib]
+    nice: {reference: TA258, status: recommended}
+    rank: 4
+
+  - id: egfr_gefitinib_first
+    setting: advanced_first_line
+    histology: nsclc
+    biomarkers_any: [EGFR_COMMON]
+    regimen: "Gefitinib monotherapy"
+    drugs: [gefitinib]
+    nice: {reference: TA192, status: recommended}
+    rank: 5
+
+  - id: egfr_t790m_osimertinib
+    setting: advanced_subsequent
+    histology: nsclc
+    biomarkers_any: [EGFR_T790M]
+    requires_prior_class: egfr_tki
+    regimen: "Osimertinib after progression on an earlier generation EGFR TKI with acquired T790M"
+    drugs: [osimertinib]
+    nice: {reference: TA653, status: recommended}
+    notes: "Replaces TA416 (Cancer Drugs Fund)."
+
+  - id: egfr_exon20_amivantamab
+    setting: advanced_subsequent
+    histology: nsclc
+    biomarkers_any: [EGFR_EXON20_INS]
+    regimen: "Amivantamab after platinum based chemotherapy"
+    drugs: [amivantamab]
+    nice: {reference: TA850, status: not_recommended}
+    guideline: "NG122 recommendation 1.7.2"
+
+  # Advanced NSCLC, ALK
+  - id: alk_alectinib_first
+    setting: advanced_first_line
+    histology: nsclc
+    biomarkers_any: [ALK]
+    regimen: "Alectinib monotherapy"
+    drugs: [alectinib]
+    nice: {reference: TA536, status: recommended}
+    rank: 1
+
+  - id: alk_lorlatinib_first
+    setting: advanced_first_line
+    histology: nsclc
+    biomarkers_any: [ALK]
+    regimen: "Lorlatinib monotherapy"
+    drugs: [lorlatinib]
+    nice: {reference: TA909, status: recommended}
+    rank: 1
+
+  - id: alk_brigatinib_first
+    setting: advanced_first_line
+    histology: nsclc
+    biomarkers_any: [ALK]
+    regimen: "Brigatinib monotherapy"
+    drugs: [brigatinib]
+    nice: {reference: TA670, status: recommended}
+    rank: 2
+
+  - id: alk_crizotinib_first
+    setting: advanced_first_line
+    histology: nsclc
+    biomarkers_any: [ALK]
+    regimen: "Crizotinib monotherapy"
+    drugs: [crizotinib]
+    nice: {reference: TA406, status: recommended}
+    rank: 4
+
+  - id: alk_ceritinib_first
+    setting: advanced_first_line
+    histology: nsclc
+    biomarkers_any: [ALK]
+    regimen: "Ceritinib monotherapy"
+    drugs: [ceritinib]
+    nice: {reference: TA500, status: recommended}
+    rank: 4
+
+  - id: alk_lorlatinib_later
+    setting: advanced_subsequent
+    histology: nsclc
+    biomarkers_any: [ALK]
+    requires_prior_class: alk_tki
+    regimen: "Lorlatinib after an earlier ALK TKI"
+    drugs: [lorlatinib]
+    nice: {reference: TA628, status: see_appraisal}
+    notes: "Check which earlier ALK TKIs qualify under the appraisal."
+
+  - id: alk_brigatinib_after_crizotinib
+    setting: advanced_subsequent
+    histology: nsclc
+    biomarkers_any: [ALK]
+    requires_prior_drug: crizotinib
+    regimen: "Brigatinib after crizotinib"
+    drugs: [brigatinib]
+    nice: {reference: TA571, status: see_appraisal}
+
+  # Advanced NSCLC, other drivers
+  - id: ros1_crizotinib
+    setting: advanced_first_line
+    histology: nsclc
+    biomarkers_any: [ROS1]
+    regimen: "Crizotinib monotherapy"
+    drugs: [crizotinib]
+    nice: {reference: TA1021, status: see_appraisal}
+
+  - id: ros1_entrectinib
+    setting: advanced_first_line
+    histology: nsclc
+    biomarkers_any: [ROS1]
+    regimen: "Entrectinib monotherapy"
+    drugs: [entrectinib]
+    nice: {reference: TA643, status: see_appraisal}
+
+  - id: kras_g12c_sotorasib
+    setting: advanced_subsequent
+    histology: nsclc
+    biomarkers_any: [KRAS_G12C]
+    regimen: "Sotorasib after at least one earlier systemic therapy"
+    drugs: [sotorasib]
+    nice: {reference: TA781, status: recommended_cdf}
+    evidence: {trial: "CodeBreaK 100", pmid: "34096690"}
+
+  - id: braf_dabrafenib_trametinib
+    setting: advanced_first_line
+    histology: nsclc
+    biomarkers_any: [BRAF_V600]
+    regimen: "Dabrafenib plus trametinib"
+    drugs: [dabrafenib, trametinib]
+    nice: {reference: TA898, status: see_appraisal}
+
+  - id: met_tepotinib
+    setting: advanced_any_line
+    histology: nsclc
+    biomarkers_any: [MET_EX14]
+    regimen: "Tepotinib monotherapy"
+    drugs: [tepotinib]
+    nice: {reference: TA789, status: see_appraisal}
+
+  - id: met_capmatinib
+    setting: advanced_any_line
+    histology: nsclc
+    biomarkers_any: [MET_EX14]
+    regimen: "Capmatinib monotherapy"
+    drugs: [capmatinib]
+    nice: {reference: TA884, status: terminated}
+
+  - id: ret_selpercatinib_first
+    setting: advanced_first_line
+    histology: nsclc
+    biomarkers_any: [RET]
+    regimen: "Selpercatinib monotherapy"
+    drugs: [selpercatinib]
+    nice: {reference: TA911, status: see_appraisal}
+
+  - id: ret_selpercatinib_later
+    setting: advanced_subsequent
+    histology: nsclc
+    biomarkers_any: [RET]
+    regimen: "Selpercatinib after earlier treatment"
+    drugs: [selpercatinib]
+    nice: {reference: TA760, status: see_appraisal}
+
+  - id: ret_pralsetinib
+    setting: advanced_any_line
+    histology: nsclc
+    biomarkers_any: [RET]
+    regimen: "Pralsetinib monotherapy"
+    drugs: [pralsetinib]
+    nice: {reference: TA812, status: not_recommended}
+    guideline: "NG122 recommendation 1.7.2"
+
+  - id: ntrk_larotrectinib
+    setting: advanced_any_line
+    histology: any
+    biomarkers_any: [NTRK]
+    regimen: "Larotrectinib when no satisfactory alternative exists"
+    drugs: [larotrectinib]
+    nice: {reference: TA630, status: recommended_cdf}
+    guideline: "NG122 recommendation 1.7.1"
+
+  - id: her2_trastuzumab_deruxtecan
+    setting: advanced_subsequent
+    histology: nsclc
+    biomarkers_any: [HER2_MUT]
+    regimen: "Trastuzumab deruxtecan after platinum based chemotherapy"
+    drugs: [trastuzumab deruxtecan]
+    nice: {reference: TA976, status: terminated}
+
+  # Advanced NSCLC without an actionable driver
+  - id: pdl1_high_pembrolizumab
+    setting: advanced_first_line
+    histology: nsclc
+    biomarkers_excluded: [EGFR_COMMON, ALK, ROS1]
+    pdl1_min: 50
+    regimen: "Pembrolizumab monotherapy"
+    drugs: [pembrolizumab]
+    nice: {reference: TA531, status: recommended}
+    evidence: {trial: "KEYNOTE-024", pmid: "27718847"}
+    rank: 1
+
+  - id: pdl1_high_atezolizumab
+    setting: advanced_first_line
+    histology: nsclc
+    biomarkers_excluded: [EGFR_COMMON, ALK, ROS1]
+    pdl1_min: 50
+    regimen: "Atezolizumab monotherapy"
+    drugs: [atezolizumab]
+    nice: {reference: TA705, status: see_appraisal}
+    rank: 2
+
+  - id: pdl1_high_cemiplimab
+    setting: advanced_first_line
+    histology: nsclc
+    biomarkers_excluded: [EGFR_COMMON, ALK, ROS1]
+    pdl1_min: 50
+    regimen: "Cemiplimab monotherapy"
+    drugs: [cemiplimab]
+    nice: {reference: TA848, status: terminated}
+
+  - id: nonsq_pembrolizumab_pemetrexed_platinum
+    setting: advanced_first_line
+    histology: non_squamous
+    biomarkers_excluded: [EGFR_COMMON, ALK]
+    regimen: "Pembrolizumab with pemetrexed and platinum chemotherapy"
+    drugs: [pembrolizumab, pemetrexed, carboplatin, cisplatin]
+    nice: {reference: TA683, status: recommended}
+    evidence: {trial: "KEYNOTE-189", pmid: "29658856"}
+    rank: 1
+
+  - id: nonsq_atezolizumab_combination
+    setting: advanced_first_line
+    histology: non_squamous
+    regimen: "Atezolizumab with bevacizumab, carboplatin and paclitaxel"
+    drugs: [atezolizumab, bevacizumab, carboplatin, paclitaxel]
+    nice: {reference: TA584, status: see_appraisal}
+    rank: 3
+
+  - id: sq_pembrolizumab_carboplatin_paclitaxel
+    setting: advanced_first_line
+    histology: squamous
+    regimen: "Pembrolizumab with carboplatin and paclitaxel"
+    drugs: [pembrolizumab, carboplatin, paclitaxel]
+    nice: {reference: TA770, status: recommended}
+    rank: 1
+
+  - id: nivolumab_ipilimumab_chemo
+    setting: advanced_first_line
+    histology: nsclc
+    regimen: "Nivolumab with ipilimumab and chemotherapy"
+    drugs: [nivolumab, ipilimumab]
+    nice: {reference: TA724, status: not_recommended}
+    guideline: "NG122 recommendation 1.7.2"
+
+  - id: sq_necitumumab
+    setting: advanced_first_line
+    histology: squamous
+    regimen: "Necitumumab with gemcitabine and cisplatin"
+    drugs: [necitumumab]
+    nice: {reference: TA411, status: not_recommended}
+    guideline: "NG122 recommendation 1.7.2"
+
+  - id: later_nivolumab_nonsq
+    setting: advanced_subsequent
+    histology: non_squamous
+    regimen: "Nivolumab after chemotherapy"
+    drugs: [nivolumab]
+    nice: {reference: TA713, status: see_appraisal}
+
+  - id: later_nivolumab_sq
+    setting: advanced_subsequent
+    histology: squamous
+    regimen: "Nivolumab after chemotherapy"
+    drugs: [nivolumab]
+    nice: {reference: TA655, status: see_appraisal}
+
+  - id: later_atezolizumab
+    setting: advanced_subsequent
+    histology: nsclc
+    regimen: "Atezolizumab after chemotherapy"
+    drugs: [atezolizumab]
+    nice: {reference: TA520, status: see_appraisal}
+
+  - id: later_pembrolizumab
+    setting: advanced_subsequent
+    histology: nsclc
+    pdl1_min: 1
+    regimen: "Pembrolizumab after chemotherapy"
+    drugs: [pembrolizumab]
+    nice: {reference: TA428, status: see_appraisal}
+
+  - id: later_docetaxel_nintedanib
+    setting: advanced_subsequent
+    histology: adenocarcinoma
+    regimen: "Nintedanib with docetaxel"
+    drugs: [nintedanib, docetaxel]
+    nice: {reference: TA347, status: see_appraisal}
+
+  - id: later_ramucirumab
+    setting: advanced_subsequent
+    histology: nsclc
+    regimen: "Ramucirumab with docetaxel"
+    drugs: [ramucirumab, docetaxel]
+    nice: {reference: TA403, status: not_recommended}
+    guideline: "NG122 recommendation 1.7.2"
+
+  # Small cell lung cancer
+  - id: ls_sclc_chemoradiotherapy
+    setting: limited_stage_sclc
+    histology: small_cell
+    ps_max: 1
+    regimen: "Four to six cycles of cisplatin based chemotherapy with concurrent twice daily thoracic radiotherapy from cycle 1 or 2"
+    drugs: [cisplatin, etoposide]
+    nice: {reference: NG122, status: recommended}
+    guideline: "NG122 recommendations 1.10.1 to 1.10.3"
+    notes: "Consider carboplatin if renal function is impaired, performance status is 2 or more, or comorbidity is significant."
+
+  - id: ls_sclc_durvalumab
+    setting: limited_stage_sclc
+    histology: small_cell
+    regimen: "Durvalumab after platinum based chemoradiotherapy without progression"
+    drugs: [durvalumab]
+    nice: {reference: TA1099, status: recommended}
+    guideline: "NG122 recommendation 1.10.6"
+
+  - id: ls_sclc_pci
+    setting: limited_stage_sclc
+    histology: small_cell
+    ps_max: 2
+    regimen: "Prophylactic cranial irradiation for people without progression after first line treatment"
+    drugs: []
+    nice: {reference: NG122, status: recommended}
+    guideline: "NG122 recommendation 1.10.5"
+
+  - id: es_sclc_durvalumab
+    setting: extensive_stage_sclc
+    histology: small_cell
+    ps_max: 1
+    regimen: "Durvalumab with etoposide and platinum chemotherapy"
+    drugs: [durvalumab, etoposide, carboplatin, cisplatin]
+    nice: {reference: TA1041, status: recommended}
+    guideline: "NG122 recommendation 1.11.3"
+
+  - id: es_sclc_atezolizumab
+    setting: extensive_stage_sclc
+    histology: small_cell
+    ps_max: 1
+    regimen: "Atezolizumab with carboplatin and etoposide"
+    drugs: [atezolizumab, carboplatin, etoposide]
+    nice: {reference: TA638, status: recommended}
+    guideline: "NG122 recommendation 1.11.3"
+
+  - id: relapsed_sclc_topotecan
+    setting: relapsed_sclc
+    histology: small_cell
+    regimen: "Oral topotecan"
+    drugs: [topotecan]
+    nice: {reference: TA184, status: recommended}
+    guideline: "NG122 recommendation 1.12.4"
+
+  - id: relapsed_sclc_rechallenge
+    setting: relapsed_sclc
+    histology: small_cell
+    regimen: "Anthracycline containing regimen or platinum rechallenge, up to 6 cycles"
+    drugs: [carboplatin, etoposide]
+    nice: {reference: NG122, status: recommended}
+    guideline: "NG122 recommendation 1.12.3"
+
+  - id: relapsed_sclc_tarlatamab
+    setting: relapsed_sclc
+    histology: small_cell
+    regimen: "Tarlatamab after two or more lines including platinum"
+    drugs: [tarlatamab]
+    nice: {reference: TA1091, status: not_recommended}
+    guideline: "NG122 recommendation 1.12.6"

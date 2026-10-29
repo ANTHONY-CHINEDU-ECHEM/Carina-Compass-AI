@@ -1,0 +1,169 @@
+# Clinical lexicon for thoracic oncology query understanding.
+# Every entry maps the way clinicians actually write to the canonical UK term
+# used in the index. Changes to this file must be reviewed by a clinician and
+# the review date below updated.
+version: 1
+last_reviewed: "2026-10-29"
+review_status: "pending clinical review"
+
+brand_to_generic:
+  tagrisso: osimertinib
+  tarceva: erlotinib
+  iressa: gefitinib
+  giotrif: afatinib
+  gilotrif: afatinib
+  vizimpro: dacomitinib
+  rybrevant: amivantamab
+  lazcluze: lazertinib
+  alecensa: alectinib
+  alunbrig: brigatinib
+  lorviqua: lorlatinib
+  lorbrena: lorlatinib
+  xalkori: crizotinib
+  zykadia: ceritinib
+  rozlytrek: entrectinib
+  vitrakvi: larotrectinib
+  lumykras: sotorasib
+  lumakras: sotorasib
+  krazati: adagrasib
+  tafinlar: dabrafenib
+  mekinist: trametinib
+  tepmetko: tepotinib
+  tabrecta: capmatinib
+  retsevmo: selpercatinib
+  gavreto: pralsetinib
+  enhertu: trastuzumab deruxtecan
+  keytruda: pembrolizumab
+  opdivo: nivolumab
+  yervoy: ipilimumab
+  tecentriq: atezolizumab
+  imfinzi: durvalumab
+  libtayo: cemiplimab
+  imdelltra: tarlatamab
+  alimta: pemetrexed
+  taxotere: docetaxel
+  abraxane: nab paclitaxel
+  cyramza: ramucirumab
+  vargatef: nintedanib
+  avastin: bevacizumab
+  hycamtin: topotecan
+  xgeva: denosumab
+  zometa: zoledronic acid
+  paraplatin: carboplatin
+
+abbreviations:
+  nsclc: non small cell lung cancer
+  sclc: small cell lung cancer
+  ls-sclc: limited stage small cell lung cancer
+  es-sclc: extensive stage small cell lung cancer
+  adc: adenocarcinoma
+  scc: squamous cell carcinoma
+  sabr: stereotactic ablative radiotherapy
+  sbrt: stereotactic ablative radiotherapy
+  crt: chemoradiotherapy
+  ccrt: concurrent chemoradiotherapy
+  pci: prophylactic cranial irradiation
+  tki: tyrosine kinase inhibitor
+  ici: immune checkpoint inhibitor
+  io: immunotherapy
+  pfs: progression free survival
+  os: overall survival
+  dfs: disease free survival
+  efs: event free survival
+  orr: objective response rate
+  pcr: pathological complete response
+  mdt: multidisciplinary team
+  ebus: endobronchial ultrasound
+  tps: tumour proportion score
+  ngs: next generation sequencing
+  ctdna: circulating tumour dna
+  mscc: metastatic spinal cord compression
+  svco: superior vena cava obstruction
+  ild: interstitial lung disease
+  irae: immune related adverse event
+  ps: performance status
+  ecog: performance status
+
+us_to_uk_spelling:
+  tumor: tumour
+  tumors: tumours
+  hematologic: haematological
+  anemia: anaemia
+  edema: oedema
+  esophagitis: oesophagitis
+  neutropenic fever: neutropenic sepsis
+  febrile neutropenia: neutropenic sepsis
+  pediatric: paediatric
+  hemoptysis: haemoptysis
+  hypercalcemia: hypercalcaemia
+  leukopenia: leucopenia
+
+# Phrase level synonyms used for query expansion and answerability. When the
+# key phrase appears in a question, the listed phrases are added to retrieval.
+synonyms:
+  first line: [untreated, previously untreated, treatment naive]
+  first-line: [untreated, previously untreated]
+  second line: [previously treated, after chemotherapy, progressed]
+  second-line: [previously treated, after chemotherapy]
+  metastatic: [advanced, stage iv]
+  advanced: [metastatic, locally advanced]
+  stage iv: [metastatic, advanced]
+  stage iva: [metastatic, advanced]
+  stage ivb: [metastatic, advanced]
+  immunotherapy: [pembrolizumab, atezolizumab, nivolumab, durvalumab, cemiplimab, checkpoint inhibitor]
+  checkpoint inhibitor: [pembrolizumab, atezolizumab, nivolumab, durvalumab, cemiplimab]
+  chemotherapy: [platinum, carboplatin, cisplatin, pemetrexed, docetaxel, etoposide]
+  chemoimmunotherapy: [pembrolizumab, platinum, chemotherapy]
+  chemo-immunotherapy: [pembrolizumab, platinum, chemotherapy]
+  tps: [tumour proportion score, pd-l1]
+  pd-l1 high: [pd-l1 at least 50%, tumour proportion score]
+  egfr tki: [osimertinib, erlotinib, gefitinib, afatinib, dacomitinib, tyrosine kinase inhibitor]
+  alk tki: [alectinib, lorlatinib, brigatinib, crizotinib, ceritinib]
+  resected: [complete resection, adjuvant, after surgery]
+  operable: [resectable, surgery]
+  inoperable: [unresectable, unsuitable for surgery]
+  sbrt: [sabr, stereotactic ablative radiotherapy]
+  survival: [progression free survival, overall survival, hazard ratio]
+  results: [progression free survival, overall survival, hazard ratio, response rate]
+  show: [results, survival]
+  fractionation: [fractions, gy]
+  radical radiotherapy: [radiotherapy, fractions, gy]
+  declines surgery: [declined, unsuitable for surgery, sabr]
+  stage ia: [stage 1, stage 1 to 2a]
+  stage ib: [stage 1, stage 1 to 2a]
+
+histology:
+  adenocarcinoma: [adenocarcinoma, adeno, lung adenocarcinoma, luad]
+  squamous: [squamous, squamous cell, squamous cell carcinoma, lusc, scc]
+  non_squamous: [non squamous, nonsquamous, non-squamous]
+  large_cell: [large cell, large cell carcinoma]
+  small_cell: [small cell, small cell lung cancer, sclc, oat cell]
+  nsclc_nos: [nsclc nos, non small cell not otherwise specified]
+  mesothelioma: [mesothelioma]
+
+drug_classes:
+  egfr_tki: [osimertinib, erlotinib, gefitinib, afatinib, dacomitinib, lazertinib, firmonertinib]
+  alk_tki: [alectinib, brigatinib, lorlatinib, crizotinib, ceritinib]
+  ros1_tki: [crizotinib, entrectinib, repotrectinib]
+  kras_g12c_inhibitor: [sotorasib, adagrasib, divarasib, olomorasib, calderasib]
+  met_inhibitor: [tepotinib, capmatinib]
+  ret_inhibitor: [selpercatinib, pralsetinib]
+  trk_inhibitor: [larotrectinib, entrectinib]
+  braf_mek: [dabrafenib, trametinib, encorafenib, binimetinib]
+  checkpoint_inhibitor: [pembrolizumab, nivolumab, ipilimumab, atezolizumab, durvalumab, cemiplimab, tremelimumab]
+  bispecific: [amivantamab, tarlatamab, ivonescimab]
+  antibody_drug_conjugate: [trastuzumab deruxtecan, datopotamab deruxtecan]
+  platinum: [cisplatin, carboplatin]
+  cytotoxic: [pemetrexed, docetaxel, paclitaxel, nab paclitaxel, gemcitabine, vinorelbine, etoposide, topotecan, lurbinectedin, irinotecan, doxorubicin, cyclophosphamide, vincristine]
+  strong_cyp3a_inducer: [rifampicin, rifampin, carbamazepine, phenytoin, phenobarbital, st johns wort, enzalutamide, apalutamide, rifabutin]
+  strong_cyp3a_inhibitor: [itraconazole, ketoconazole, posaconazole, voriconazole, clarithromycin, ritonavir, cobicistat]
+  acid_reducing: [omeprazole, lansoprazole, esomeprazole, pantoprazole, rabeprazole, ranitidine, famotidine]
+  qt_prolonging: [amiodarone, sotalol, citalopram, escitalopram, haloperidol, methadone, ondansetron, domperidone, clarithromycin, erythromycin, quinine, hydroxychloroquine]
+  bradycardic: [bisoprolol, atenolol, metoprolol, propranolol, verapamil, diltiazem, digoxin, ivabradine]
+  nsaid: [ibuprofen, naproxen, diclofenac, celecoxib, etoricoxib, aspirin high dose]
+  anticoagulant: [warfarin, apixaban, rivaroxaban, edoxaban, dabigatran, enoxaparin, dalteparin, tinzaparin]
+  nephrotoxic: [gentamicin, amikacin, vancomycin, amphotericin, ciclosporin, tacrolimus, iodinated contrast]
+  systemic_corticosteroid: [prednisolone, dexamethasone, methylprednisolone, hydrocortisone]
+  live_vaccine: [yellow fever vaccine, mmr vaccine, varicella vaccine, oral typhoid vaccine, live zoster vaccine, bcg vaccine]
+
+stopwords: [a, an, the, of, for, in, on, and, or, to, with, is, are, was, be, what, which, how, should, does, do, did, can, i, my, me, we, our, patient, patients, pt, please, about, there, this, that, it, its, at, as, by, from, any, has, have, had, if, would, could, after, before, show, shows, showed, tell, give, list, option, options, whats, when, where, who, why, much, many, use, used, using, best, need, needs, know, explain, describe, summarise, summarize, current, currently, now, new, someone, person, people, man, woman, male, female, year, years, old, aged, kg, consider, considered, available, appropriate, right, choice, choices, approach, management, manage, treat, treatment, therapy, recommend, recommended, recommendation, nice]
