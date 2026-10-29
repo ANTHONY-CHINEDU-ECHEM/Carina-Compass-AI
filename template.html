@@ -1,0 +1,505 @@
+<title>Carina Compass AI</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Interactive demo of Carina Compass AI running entirely in the browser on the verified seed knowledge base.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>
+/* Layout: three column consultation desk (context, consult, evidence) that stacks to one column on phones */
+:root {
+  --bg: #f4f3ee;
+  --surface: #ffffff;
+  --surface-2: #eceae2;
+  --ink: #16212a;
+  --ink-2: #47535e;
+  --muted: #6a7480;
+  --line: #d9d5ca;
+  --accent: #0f5c63;
+  --accent-ink: #ffffff;
+  --accent-soft: #d9eaea;
+  --ok: #1d6b45; --ok-soft: #dff0e6;
+  --cdf: #7a5b0e; --cdf-soft: #f5ead0;
+  --check: #475569; --check-soft: #e6e9ed;
+  --no: #8f2a2a; --no-soft: #f5e0de;
+  --danger: #a3241f; --danger-soft: #fbe6e3;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f151b; --surface: #161e26; --surface-2: #1d2731; --ink: #e5eaee; --ink-2: #b6c0ca; --muted: #8995a1; --line: #2b3741;
+  --accent: #62b6bc; --accent-ink: #0a1418; --accent-soft: #173a3d;
+  --ok: #80d1a2; --ok-soft: #173a29; --cdf: #e2bf6a; --cdf-soft: #3a3017; --check: #b4c0cc; --check-soft: #27323c;
+  --no: #f0a29d; --no-soft: #3d1f1e; --danger: #ff8f86; --danger-soft: #3f1a18; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f151b; --surface: #161e26; --surface-2: #1d2731; --ink: #e5eaee; --ink-2: #b6c0ca; --muted: #8995a1; --line: #2b3741;
+  --accent: #62b6bc; --accent-ink: #0a1418; --accent-soft: #173a3d;
+  --ok: #80d1a2; --ok-soft: #173a29; --cdf: #e2bf6a; --cdf-soft: #3a3017; --check: #b4c0cc; --check-soft: #27323c;
+  --no: #f0a29d; --no-soft: #3d1f1e; --danger: #ff8f86; --danger-soft: #3f1a18; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--sans); }
+a { color: var(--accent); text-underline-offset: 2px; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+.mono { font-family: var(--mono); font-size: 0.86em; }
+.muted { color: var(--muted); font-size: 0.86em; }
+
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.top { border-bottom: 1px solid var(--line); background: var(--surface); }
+.top .wrap { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; padding-block: 14px; max-width: 1440px; margin: 0 auto; }
+.brand { display: flex; gap: 12px; align-items: center; color: var(--accent); }
+.brand h1 { font-family: var(--serif); font-size: 1.3rem; color: var(--ink); }
+.brand p { margin: 0; color: var(--muted); font-size: 0.82rem; }
+.kb { font-size: 0.8rem; color: var(--ink-2); display: flex; gap: 8px; flex-wrap: wrap; }
+.kb span { background: var(--surface-2); border-radius: 999px; padding: 2px 10px; font-variant-numeric: tabular-nums; }
+
+.layout { display: grid; grid-template-columns: 270px minmax(0, 1fr) 340px; gap: 18px; padding-block: 18px 40px; max-width: 1440px; margin: 0 auto; }
+@media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; align-self: start; min-width: 0; }
+.panel h2 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.09em; color: var(--ink-2); margin-bottom: 4px; }
+.hint { color: var(--muted); font-size: 0.8rem; margin: 0 0 12px; }
+.panel label { display: flex; flex-direction: column; gap: 4px; font-size: 0.8rem; color: var(--ink-2); }
+.panel input, .panel select { border: 1px solid var(--line); background: var(--surface-2); border-radius: 7px; padding: 6px 8px; width: 100%; }
+.stack { display: grid; gap: 10px; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip { border: 1px solid var(--line); background: var(--surface-2); border-radius: 999px; padding: 3px 9px; font-size: 0.77rem; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.ghost { background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; font-size: 0.8rem; justify-self: start; }
+
+.consult { display: grid; gap: 14px; min-width: 0; align-content: start; }
+.ask { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+.ask textarea { width: 100%; border: 0; background: transparent; resize: vertical; font-size: 1.02rem; outline: none; min-height: 64px; }
+.ask-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; justify-content: space-between; }
+.examples { display: flex; flex-wrap: wrap; gap: 6px; flex: 1 1 300px; }
+.example { border: 1px dashed var(--line); background: none; border-radius: 7px; padding: 3px 8px; font-size: 0.76rem; color: var(--ink-2); cursor: pointer; text-align: left; }
+.example:hover { border-color: var(--accent); color: var(--accent); }
+.primary { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px; padding: 9px 20px; font-weight: 600; cursor: pointer; }
+
+.redacted { margin: 0; font-size: 0.8rem; background: var(--accent-soft); color: var(--ink-2); border-radius: 7px; padding: 6px 10px; }
+.emergency { border: 2px solid var(--danger); background: var(--danger-soft); border-radius: 10px; padding: 12px 14px; }
+.emergency h3 { color: var(--danger); font-size: 1rem; }
+.emergency ol { margin: 6px 0; padding-left: 20px; }
+.emergency p { margin: 0; font-size: 0.8rem; color: var(--ink-2); }
+
+.tool { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+.tool.needs { border-left-color: var(--cdf); }
+.tool-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; margin-bottom: 8px; }
+.tool-head h3 { font-size: 0.95rem; }
+.verified { font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); white-space: nowrap; }
+.stage-line { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.stage-line strong { font-family: var(--serif); font-size: 1.9rem; }
+.note { font-size: 0.8rem; color: var(--ink-2); background: var(--surface-2); border-radius: 6px; padding: 4px 8px; margin: 4px 0; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+th { text-align: left; color: var(--muted); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; border-bottom: 1px solid var(--line); padding: 5px 4px; }
+td { border-bottom: 1px solid var(--line); padding: 7px 4px; vertical-align: top; }
+.badge { display: inline-block; white-space: nowrap; border-radius: 999px; padding: 2px 8px; font-size: 0.72rem; font-weight: 500; background: var(--check-soft); color: var(--check); }
+.s-recommended { background: var(--ok-soft); color: var(--ok); }
+.s-recommended_cdf { background: var(--cdf-soft); color: var(--cdf); }
+.s-not_recommended, .s-terminated { background: var(--no-soft); color: var(--no); }
+.trials { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; font-size: 0.86rem; }
+
+.answer { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+.answer.quiet { border-style: dashed; color: var(--ink-2); }
+.answer p { margin: 0 0 10px; max-width: 72ch; }
+.judgement { font-size: 0.84rem; color: var(--ink-2); border-top: 1px solid var(--line); padding-top: 8px; }
+.cite { border: 0; background: var(--accent-soft); color: var(--accent); border-radius: 5px; font-size: 0.7rem; font-weight: 600; padding: 0 5px; vertical-align: super; cursor: pointer; line-height: 1.4; }
+.meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 0.78rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 8px; font-variant-numeric: tabular-nums; }
+.empty { color: var(--muted); font-size: 0.88rem; }
+
+.sources { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.source { border: 1px solid var(--line); border-radius: 8px; padding: 9px; }
+.source.active { border-color: var(--accent); background: var(--accent-soft); }
+.source-head { display: flex; gap: 8px; font-size: 0.85rem; font-weight: 500; }
+.sid { flex: none; width: 21px; height: 21px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: 0.72rem; display: grid; place-items: center; }
+.tags { display: flex; flex-wrap: wrap; gap: 4px; margin: 5px 0; }
+.tag { font-size: 0.68rem; border-radius: 4px; padding: 1px 6px; background: var(--surface-2); color: var(--ink-2); }
+.tag.g7 { background: var(--ok-soft); color: var(--ok); }
+.tag.g4 { background: var(--cdf-soft); color: var(--cdf); }
+.tag.old { background: var(--no-soft); color: var(--no); }
+.excerpt { margin: 0; font-size: 0.8rem; color: var(--ink-2); }
+.legal { font-size: 0.74rem; color: var(--muted); margin: 0; }
+</style>
+
+<header class="top"><div class="wrap">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M16 5 L16 15 M16 15 L8 25 M16 15 L24 25" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="15" r="2.2" fill="currentColor"/></svg>
+    <div><h1>Carina Compass AI</h1><p>Evidence grounded lung cancer treatment support · browser demo</p></div>
+  </div>
+  <div class="kb" id="kb"></div>
+</div></header>
+
+<main class="wrap"><div class="layout">
+  <aside class="panel stack" aria-label="Patient context">
+    <div><h2>Patient context</h2><p class="hint">De identified. Feeds the deterministic tools.</p></div>
+    <label for="histology">Histology
+      <select id="histology"><option value="">Not stated</option><option value="adenocarcinoma">Adenocarcinoma</option><option value="squamous">Squamous cell</option><option value="non_squamous">Non squamous NSCLC</option><option value="small_cell">Small cell</option></select>
+    </label>
+    <div class="pair">
+      <label for="stage">Stage group<input id="stage" placeholder="IVA"></label>
+      <label for="ps">ECOG<select id="ps"><option value="">Not stated</option><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
+    </div>
+    <label for="pdl1">PD L1 TPS %<input id="pdl1" inputmode="decimal"></label>
+    <div><span class="muted">Molecular profile</span><div class="chips" id="markers"></div></div>
+    <label for="setting">Setting
+      <select id="setting"><option value="">Infer from stage</option><option value="adjuvant">Adjuvant</option><option value="neoadjuvant">Neoadjuvant</option><option value="perioperative">Perioperative</option><option value="consolidation_after_crt">After chemoradiotherapy</option><option value="advanced_first_line">Advanced, first line</option><option value="advanced_subsequent">Advanced, later line</option><option value="limited_stage_sclc">Limited stage SCLC</option><option value="extensive_stage_sclc">Extensive stage SCLC</option><option value="relapsed_sclc">Relapsed SCLC</option></select>
+    </label>
+    <button class="ghost" id="clear" type="button">Clear context</button>
+  </aside>
+
+  <section class="consult" aria-label="Consultation">
+    <form class="ask" id="ask">
+      <label for="q" class="muted">Question</label>
+      <textarea id="q" rows="3"></textarea>
+      <div class="ask-row"><div class="examples" id="examples"></div><button class="primary" type="submit">Ask</button></div>
+    </form>
+    <div id="out" class="consult"></div>
+    <p class="legal">Demo of decision support for registered healthcare professionals. Not a medical device. Runs extractive answers over the verified seed snapshot; the deployed service writes answers with Claude under the same citation and figure checks.</p>
+  </section>
+
+  <aside class="panel" aria-label="Evidence">
+    <h2>Evidence</h2><p class="hint">UK guidance first, then trials, then registries.</p>
+    <ol class="sources" id="sources"><li class="empty">Sources appear after you ask.</li></ol>
+  </aside>
+</div></main>
+
+<script id="data" type="application/json">/*__DATA__*/</script>
+<script>
+"use strict";
+const DATA = JSON.parse(document.getElementById("data").textContent);
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+// Biomarkers, negation aware (mirrors backend/carina/clinical/understanding.py)
+const POS = "[\\s-]?(\\+|pos\\w*|fusion\\w*|rearrange\\w*|mut\\w*|altered|alteration|driven|amplif\\w*)";
+const MARKERS = [
+  ["EGFR_T790M", /\bt790m\b/i], ["EGFR_EXON20_INS", /\b(exon\s?20\s?(ins\w*|insertion)|ex20ins)\b/i],
+  ["EGFR_COMMON", /\b(exon\s?19\s?(del\w*)?|ex19del|del19|l858r|exon\s?21)\b/i],
+  ["EGFR_COMMON", new RegExp("\\begfr(?:[\\s-]?tk)?" + POS, "i")],
+  ["ALK", new RegExp("\\balk" + POS, "i")], ["ROS1", new RegExp("\\bros\\s?1" + POS, "i")],
+  ["KRAS_G12C", /\b(kras[\s-]?)?g12c\b/i], ["BRAF_V600", /\b(braf[\s-]?)?v600e?\b/i],
+  ["MET_EX14", /\b(met[\s-]?(ex|exon)\s?14|metex14)/i], ["RET", new RegExp("\\bret" + POS, "i")],
+  ["NTRK", new RegExp("\\bntrk\\s?\\d?" + POS, "i")], ["HER2_MUT", /\b(her2|erbb2)[\s-]?(mut\w*|exon\s?20)/i],
+];
+const NEG_BEFORE = /\b(no|without|negative for|not|absence of|excluding|wild[\s-]?type)\b[^.;]{0,30}$/i;
+const NEG_AFTER = /^[^.;]{0,12}\b(negative|wild[\s-]?type|wt|not detected)\b/i;
+function detectMarkers(text) {
+  const found = [];
+  for (const [code, re] of MARKERS) {
+    if (found.includes(code)) continue;
+    const g = new RegExp(re.source, "gi");
+    let m;
+    while ((m = g.exec(text))) {
+      const before = text.slice(Math.max(0, m.index - 40), m.index), after = text.slice(m.index + m[0].length, m.index + m[0].length + 20);
+      if (!NEG_BEFORE.test(before) && !NEG_AFTER.test(after)) { found.push(code); break; }
+    }
+  }
+  return found;
+}
+const MARKER_LABEL = { EGFR_COMMON: "EGFR ex19del / L858R", EGFR_T790M: "EGFR T790M", EGFR_EXON20_INS: "EGFR exon 20 ins", ALK: "ALK", ROS1: "ROS1", KRAS_G12C: "KRAS G12C", BRAF_V600: "BRAF V600", MET_EX14: "MET exon 14", RET: "RET", NTRK: "NTRK", HER2_MUT: "HER2 mutation" };
+
+// Tokenizer (mirrors backend/carina/retrieval/tokenizer.py, simplified)
+const STOP = new Set(DATA.stopwords);
+const ROMAN = { 1: "i", 2: "ii", 3: "iii", 4: "iv" };
+function stem(t) {
+  if (t.length <= 4 || !/^[a-z]+$/.test(t) || /(ss|us|is)$/.test(t)) return t;
+  for (const [s, r] of [["ies", "y"], ["ing", ""], ["ed", ""], ["es", ""], ["s", ""]]) {
+    if (t.endsWith(s) && t.length - s.length >= 4) { t = t.slice(0, -s.length) + r; break; }
+  }
+  if (t.endsWith("e") && t.length > 5) t = t.slice(0, -1);
+  return t;
+}
+function tokenize(text) {
+  let s = text.toLowerCase().replace(/\b(?:c|p|yp)(?=[tnm][0-4x](?:mi|is|[abc]\d?)?\b)/g, "");
+  const extra = detectMarkers(s).map((c) => "bm_" + c.toLowerCase());
+  if (/\b(metastatic|stage\s?(iv[ab]?|4[ab]?)|m1[abc]?\d?)\b/.test(s)) extra.push("phase_metastatic");
+  for (const m of s.matchAll(/\bstages?\s+(iv|i{1,3}|[1-4])([abc]\d?)?\b/g)) { const r = ROMAN[m[1]] || m[1]; extra.push("stage" + r + (m[2] || ""), "stage" + r); }
+  for (const m of s.matchAll(/\bexon\s+(\d{1,2})\b/g)) extra.push("exon" + m[1]);
+  s = s.replace(/pd[\s-]?l1/g, "pdl1");
+  const raw = s.match(/nct\d{8}|ta\d{2,4}|ng\d{2,4}|pdl1|[a-z]\d{2,4}[a-z]|[tnm][0-4x](?:mi|is|[abc]\d?)?|\d+(?:\.\d+)?%?|[a-z][a-z0-9]+/g) || [];
+  const out = [];
+  for (const t of raw.concat(extra)) {
+    if (STOP.has(t) || (t.length === 1 && !/\d/.test(t))) continue;
+    const g = DATA.brands[t];
+    if (g) out.push(...g.split(" ")); else out.push(stem(t));
+  }
+  return out;
+}
+const DECISIVE = /^(bm_\w+|[a-z]\d{2,4}[a-z]|exon\d+|pdl1|egfr|alk|ros1|kras|braf|met|ret|ntrk\d?|her2|ta\d+|ng\d+|nct\d+)$/;
+
+// BM25 index over the seed chunks
+const CHUNKS = DATA.chunks;
+const docTokens = CHUNKS.map((c) => tokenize(`${c.title} ${c.section || ""} ${c.text}`));
+const df = {};
+docTokens.forEach((toks) => new Set(toks).forEach((t) => (df[t] = (df[t] || 0) + 1)));
+const N = CHUNKS.length, avgdl = docTokens.reduce((a, t) => a + t.length, 0) / N;
+const idf = (t) => Math.log(1 + (N - (df[t] || 0) + 0.5) / ((df[t] || 0) + 0.5));
+function bm25(query) {
+  const q = [...new Set(tokenize(query))];
+  return docTokens.map((toks, i) => {
+    const tf = {}; toks.forEach((t) => (tf[t] = (tf[t] || 0) + 1));
+    let s = 0;
+    for (const t of q) if (tf[t]) s += idf(t) * tf[t] * 2.4 / (tf[t] + 1.4 * (1 - 0.72 + 0.72 * toks.length / avgdl));
+    return [i, s];
+  }).filter((x) => x[1] > 0).sort((a, b) => b[1] - a[1]);
+}
+
+// Query understanding
+const SETTINGS = [
+  ["neoadjuvant", /\b(neo[\s-]?adjuvant|before surgery)\b/i], ["perioperative", /\bperi[\s-]?operative\b/i],
+  ["adjuvant", /\b(adjuvant|after (complete )?resection|resected)\b/i],
+  ["consolidation_after_crt", /\b(after|following) (concurrent )?(chemoradio\w*|crt)\b|\bconsolidation\b/i],
+  ["unresectable_stage3", /\bunresectable\b/i], ["extensive_stage_sclc", /\bextensive[\s-]?stage\b/i],
+  ["limited_stage_sclc", /\blimited[\s-]?stage\b/i],
+  ["advanced_subsequent", /\b(second[\s-]?line|progressed (on|after)|previously treated|after (?:platinum[\s-]based )?chemotherapy\b|after (osimertinib|immunotherapy|chemo[\s-]?immunotherapy))/i],
+  ["advanced_first_line", /\b(first[\s-]?line|untreated|treatment[\s-]?naive)\b/i],
+];
+const GROUP = { adjuvant: "early", neoadjuvant: "early", perioperative: "early", consolidation_after_crt: "local", unresectable_stage3: "local", advanced_first_line: "adv", advanced_subsequent: "adv", advanced_any_line: "adv", limited_stage_sclc: "ls", extensive_stage_sclc: "es", relapsed_sclc: "rel" };
+function understand(q) {
+  const lower = q.toLowerCase();
+  const u = { biomarkers: detectMarkers(lower), drugs: [], expansions: [] };
+  const hist = lower.replace(/non[\s-]?small[\s-]?cell/g, " nsclc ");
+  if (/\b(small[\s-]?cell|sclc)\b/.test(hist)) u.histology = "small_cell";
+  else if (/\b(?<!non[\s-])squamous\b/.test(hist)) u.histology = "squamous";
+  else if (/\bnon[\s-]?squamous\b/.test(hist)) u.histology = "non_squamous";
+  else if (/\badenocarcinoma\b/.test(hist)) u.histology = "adenocarcinoma";
+  else if (/\bnsclc\b/.test(hist)) u.histology = "nsclc";
+  const p = lower.match(/\b(?:pd[\s-]?l1|tps)\b[^0-9]{0,20}(\d{1,3})\s*%/); if (p) u.pdl1 = +p[1];
+  const ps = lower.match(/\b(?:ecog|who|ps|performance status)\s?(?:of|=|is)?\s?([0-4])\b/); if (ps) u.ps = +ps[1];
+  const st = lower.match(/\bstage\s?(iv|i{1,3}|[1-4])([abc]\d?)?\b/); if (st) u.stage = ({ 1: "I", 2: "II", 3: "III", 4: "IV" }[st[1]] || st[1].toUpperCase()) + (st[2] || "").toUpperCase();
+  const tnm = q.match(/\b(?:[cpy]{0,2})(T(?:is|x|0|1mi|1[abc]?|2[ab]?|3|4))\s*,?\s*(N(?:x|0|1|2[ab]?|3))\s*,?\s*(M(?:0|1[ab]|1c[12]?|1))?/i);
+  if (tnm) u.tnm = ["T" + tnm[1].slice(1).toLowerCase(), "N" + tnm[2].slice(1).toLowerCase(), "M" + (tnm[3] ? tnm[3].slice(1).toLowerCase() : "0")];
+  for (const [s, re] of SETTINGS) if (re.test(lower)) { u.setting = s; break; }
+  if (!u.setting && u.stage && u.stage.startsWith("IV")) u.setting = "advanced_first_line";
+  for (const [brand, gen] of Object.entries(DATA.brands)) if (new RegExp("\\b" + brand + "\\b").test(lower)) u.drugs.push(gen);
+  for (const d of DATA.drugs) if (new RegExp("\\b" + d + "\\b").test(lower) && !u.drugs.includes(d)) u.drugs.push(d);
+  for (const [phrase, alts] of Object.entries(DATA.synonyms)) if (lower.includes(phrase)) u.expansions.push(...alts);
+  u.wantsTrials = /\b(trials|recruiting|enrol\w*|trial options)\b/.test(lower);
+  u.wantsOptions = /\b(option|options|treat\w*|therapy|first[\s-]?line|second[\s-]?line|adjuvant|recommend\w*|eligible)\b/.test(lower) || u.biomarkers.length > 0;
+  return u;
+}
+
+// Redaction (NHS numbers validated with modulus 11)
+function nhsValid(d) {
+  if (!/^\d{10}$/.test(d) || /^(\d)\1+$/.test(d)) return false;
+  let sum = 0; for (let i = 0; i < 9; i++) sum += +d[i] * (10 - i);
+  let c = 11 - (sum % 11); if (c === 11) c = 0; return c !== 10 && c === +d[9];
+}
+function redact(text) {
+  const counts = {}; const hit = (k) => { counts[k] = (counts[k] || 0) + 1; return `[${k}]`; };
+  let s = text.replace(/\b[\w.+-]+@[\w-]+\.[\w.-]+\b/g, () => hit("EMAIL"));
+  s = s.replace(/\b(?:dob|date of birth|born(?: on)?)\s*[:-]?\s*\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}/gi, () => hit("DATE_OF_BIRTH"));
+  s = s.replace(/(?<!\d)(\d{3})[\s-]?(\d{3})[\s-]?(\d{4})(?!\d)/g, (m, a, b, c) => (nhsValid(a + b + c) ? hit("NHS_NUMBER") : m));
+  s = s.replace(/(?<!\d)(?:\+44\s?|0)(?:\d\s?){9,10}(?!\d)/g, () => hit("PHONE"));
+  s = s.replace(/\b[A-PR-UWYZ][A-HK-Y]?\d[A-Z\d]? ?\d[ABD-HJLNP-UW-Z]{2}\b/g, () => hit("POSTCODE"));
+  s = s.replace(/\b(?:Mr|Mrs|Ms|Miss|Mx|Dr|Prof)\.?\s+[A-Z][a-zA-Z'-]+(?:\s+[A-Z][a-zA-Z'-]+){0,2}/g, () => hit("NAME"));
+  return { text: s, counts };
+}
+
+// Emergency triage (patterns compiled from emergencies.yaml)
+const EMERG = Object.entries(DATA.emergencies).map(([k, v]) => ({ key: k, title: v.title, actions: v.actions, guidance: v.guidance || [], res: v.patterns.map((p) => new RegExp(p, "is")) }));
+function triage(text) {
+  return EMERG.filter((e) => e.res.some((re) => { const m = re.exec(text); return m && !/\b(no|not|without|denies)\s+(\w+\s+){0,3}$/i.test(text.slice(Math.max(0, m.index - 40), m.index)); }));
+}
+
+// TNM staging, 9th edition (mirrors backend/carina/clinical/staging.py)
+const N0 = { T1mi: "IA1", T1a: "IA1", T1b: "IA2", T1c: "IA3", T2a: "IB", T2b: "IIA", T3: "IIB", T4: "IIIA" };
+const T9 = { "T1|N1": "IIA", "T2|N1": "IIB", "T3|N1": "IIIA", "T4|N1": "IIIA", "T1|N2a": "IIB", "T2|N2a": "IIIA", "T3|N2a": "IIIA", "T4|N2a": "IIIB", "T1|N2b": "IIIA", "T2|N2b": "IIIB", "T3|N2b": "IIIB", "T4|N2b": "IIIB", "T1|N3": "IIIB", "T2|N3": "IIIB", "T3|N3": "IIIC", "T4|N3": "IIIC" };
+const T8 = { "T1|N1": "IIB", "T2|N1": "IIB", "T3|N1": "IIIA", "T4|N1": "IIIA", "T1|N2": "IIIA", "T2|N2": "IIIA", "T3|N2": "IIIB", "T4|N2": "IIIB", "T1|N3": "IIIB", "T2|N3": "IIIB", "T3|N3": "IIIC", "T4|N3": "IIIC" };
+function stage([t, n, m]) {
+  const notes = [];
+  if (n === "N2") { n = "N2a"; notes.push("N2 not subclassified; assumed single station N2a. Confirm the number of stations."); }
+  if (m !== "M0") return { t, n, m, group: /M1c/.test(m) ? "IVB" : "IVA", notes };
+  if (n === "N0") return { t, n, m, group: N0[t] || "?", notes };
+  const tg = t.slice(0, 2), group = T9[`${tg}|${n}`] || "?", eighth = T8[`${tg}|${n.startsWith("N2") ? "N2" : n}`];
+  if (eighth && eighth !== group) notes.push(`Changed from ${eighth} in the 8th edition.`);
+  return { t, n, m, group, eighth, notes };
+}
+
+// Therapy matcher (mirrors backend/carina/clinical/therapy.py)
+const STATUS = { recommended: "Recommended by NICE", recommended_cdf: "Cancer Drugs Fund", see_appraisal: "Check the appraisal", not_recommended: "Not recommended", terminated: "Appraisal terminated" };
+const ORDER = { recommended: 0, recommended_cdf: 1, see_appraisal: 2, not_recommended: 3, terminated: 4 };
+function inferSetting(c) {
+  if (c.setting) return c.setting;
+  const s = (c.stage || "").toUpperCase();
+  if (c.histology === "small_cell") return s.startsWith("IV") ? "extensive_stage_sclc" : s ? "limited_stage_sclc" : null;
+  if (s.startsWith("IV")) return "advanced_first_line";
+  if (s === "IIIB" || s === "IIIC") return "unresectable_stage3";
+  return null;
+}
+function histOk(req, h) {
+  if (!req || req === "any") return true;
+  if (!h) return req !== "small_cell";
+  if (req === "nsclc") return h !== "small_cell";
+  if (req === "non_squamous") return ["non_squamous", "adenocarcinoma", "large_cell", "nsclc"].includes(h);
+  return req === h;
+}
+function matchTherapy(c) {
+  const setting = inferSetting(c);
+  if (!setting) return { setting, options: [] };
+  const markers = new Set(c.biomarkers), driver = [...markers].some((m) => !["KRAS_G12C", "HER2_MUT"].includes(m));
+  const adv = ["advanced_first_line", "advanced_subsequent"].includes(setting);
+  const out = DATA.therapy.filter((o) => {
+    if (!(o.setting === setting || (o.setting === "advanced_any_line" && adv))) return false;
+    if (!histOk(o.histology, c.histology)) return false;
+    const req = o.biomarkers_any || [];
+    if (req.length) { if (!req.some((r) => markers.has(r))) return false; }
+    else if (adv && driver && o.setting !== "advanced_subsequent") return false;
+    if ((o.biomarkers_excluded || []).some((e) => markers.has(e))) return false;
+    if (o.pdl1_min != null && c.pdl1 != null && c.pdl1 < o.pdl1_min) return false;
+    if (o.ps_max != null && c.ps != null && c.ps > o.ps_max) return false;
+    return true;
+  });
+  out.sort((a, b) => ORDER[a.nice.status] - ORDER[b.nice.status] || (a.rank || 9) - (b.rank || 9));
+  return { setting, options: out };
+}
+
+// Retrieval with clinical priors, then an extractive answer with citations
+function retrieve(question, u, ctx) {
+  const recall = [question, ...u.expansions].join(" ");
+  const core = [...new Set(tokenize(question + " " + u.drugs.join(" ")))];
+  const exp = [...new Set(tokenize(u.expansions.join(" ")))].filter((t) => !core.includes(t));
+  const w = Object.fromEntries(core.map((t) => [t, /^\d/.test(t) ? 0.3 : idf(t) * (DECISIVE.test(t) ? 2 : 1)]));
+  const total = Object.values(w).reduce((a, b) => a + b, 0) || 1;
+  const wanted = new Set(ctx.biomarkers), group = GROUP[ctx.setting] || null;
+  return bm25(recall).slice(0, 40).map(([i]) => {
+    const c = CHUNKS[i], set = new Set(docTokens[i]);
+    const coreHit = core.reduce((a, t) => a + (set.has(t) ? w[t] : 0), 0);
+    const expHit = Math.min(0.4 * total, exp.reduce((a, t) => a + (set.has(t) ? 0.8 * idf(t) : 0), 0));
+    const rerank = Math.min(1, (coreHit + expHit) / total);
+    const groups = new Set((c.settings || []).map((s) => GROUP[s]).filter(Boolean));
+    let boost = 1 + 0.3 * c.grade / 7 + (c.jurisdiction === "UK" ? 0.1 : 0);
+    if (wanted.size && (c.biomarkers || []).some((b) => wanted.has(b))) boost += 0.2;
+    else if (wanted.size && (c.biomarkers || []).length) boost -= 0.3;
+    if (group && groups.has(group)) boost += 0.4; else if (group && groups.size) boost -= 0.4;
+    let score = rerank * Math.max(0.2, boost);
+    if (c.superseded_by) score *= 0.5;
+    return { c, score, coverage: rerank };
+  }).sort((a, b) => b.score - a.score).filter((r, i, arr) => arr.slice(0, i).filter((x) => x.c.doc_id === r.c.doc_id).length < 2).slice(0, 8);
+}
+function compose(question, results, u, ctx) {
+  const q = new Set(tokenize([question, ...u.expansions].join(" ")));
+  const wanted = new Set(ctx.biomarkers), group = GROUP[ctx.setting] || null;
+  const cands = [];
+  results.forEach((r, rank) => {
+    const sents = r.c.text.split(/(?<=[.;])\s+(?=[A-Z(])/);
+    sents.forEach((s, pos) => {
+      const st = new Set(tokenize(s)), ov = [...q].filter((t) => st.has(t));
+      if (ov.length < 2 && !ov.some((t) => DECISIVE.test(t))) return;
+      let wgt = ov.reduce((a, t) => a + idf(t) * (DECISIVE.test(t) ? 2 : 1), 0) / (1 + 0.08 * rank) / (1 + 0.03 * pos) * (1 + 0.08 * r.c.grade);
+      if (/^(this is the registry record|clinicaltrials\.gov study|nice technology appraisal ta)/i.test(s) && !/recommend/i.test(s)) wgt *= 0.3;
+      if (group) { const g = new Set(SETTINGS.filter(([, re]) => re.test(s)).map(([k]) => GROUP[k])); if (g.size && !g.has(group)) wgt *= 0.2; }
+      if (wanted.size) { const m = detectMarkers(s.toLowerCase()); if (m.length && !m.some((x) => wanted.has(x))) wgt *= 0.2; else if (!m.length) wgt *= 0.45; }
+      if (u.drugs.length) wgt *= u.drugs.some((d) => s.toLowerCase().includes(d)) ? 1.8 : 0.5;
+      if (/\b(evidence|results?|show\w*|survival|response)\b/i.test(question) && /\d+(\.\d+)?\s?(%|months)|hazard ratio/i.test(s)) wgt *= 1.6;
+      cands.push({ wgt, id: rank + 1, s, old: r.c.superseded_by });
+    });
+  });
+  cands.sort((a, b) => b.wgt - a.wgt);
+  const chosen = [], per = {};
+  for (const c of cands) {
+    if (c.wgt < cands[0].wgt * 0.3 || chosen.length >= 6) break;
+    if ((per[c.id] || 0) >= 2 || chosen.some((x) => x.s === c.s)) continue;
+    per[c.id] = (per[c.id] || 0) + 1; chosen.push(c);
+  }
+  return chosen.map((c) => `${c.s.replace(/[.;]$/, "")}${c.old ? ` (this guidance has been replaced by ${c.old})` : ""} [${c.id}].`);
+}
+function figuresSupported(sentences, results) {
+  const missing = [];
+  for (const s of sentences) {
+    const ids = [...s.matchAll(/\[(\d+)\]/g)].map((m) => +m[1]);
+    const ev = ids.map((i) => results[i - 1].c.text).join(" ");
+    const nums = (ev.match(/\d+(?:\.\d+)?/g) || []).map(Number);
+    for (const m of s.replace(/\[\d+\]/g, "").matchAll(/(\d+(?:\.\d+)?)\s*(%|months|gy|fractions|mg)/gi)) if (!nums.includes(+m[1])) missing.push(m[0]);
+  }
+  return missing;
+}
+
+// Rendering
+const ctx = { biomarkers: [] };
+function readCtx() {
+  ctx.histology = $("histology").value || undefined; ctx.stage = $("stage").value.toUpperCase() || undefined;
+  ctx.ps = $("ps").value === "" ? undefined : +$("ps").value; ctx.pdl1 = $("pdl1").value === "" ? undefined : +$("pdl1").value;
+  ctx.setting = $("setting").value || undefined;
+}
+function renderChips() {
+  $("markers").innerHTML = Object.entries(MARKER_LABEL).map(([k, l]) => `<button type="button" class="chip" data-m="${k}" aria-pressed="${ctx.biomarkers.includes(k)}">${l}</button>`).join("");
+}
+$("markers").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-m]"); if (!b) return;
+  const k = b.dataset.m; ctx.biomarkers = ctx.biomarkers.includes(k) ? ctx.biomarkers.filter((x) => x !== k) : [...ctx.biomarkers, k]; renderChips();
+});
+$("clear").addEventListener("click", () => { ["histology", "stage", "ps", "pdl1", "setting"].forEach((id) => ($(id).value = "")); ctx.biomarkers = []; renderChips(); });
+
+function ask(raw) {
+  readCtx();
+  const red = redact(raw), q = red.text, u = understand(q);
+  const merged = { biomarkers: [...new Set([...ctx.biomarkers, ...u.biomarkers])], histology: ctx.histology || u.histology, stage: ctx.stage || u.stage, ps: ctx.ps ?? u.ps, pdl1: ctx.pdl1 ?? u.pdl1, setting: ctx.setting || u.setting };
+  const parts = [];
+  const nRed = Object.entries(red.counts);
+  if (nRed.length) parts.push(`<p class="redacted">Redacted before processing: ${nRed.map(([k, v]) => `${k.toLowerCase().replace(/_/g, " ")} ×${v}`).join(", ")}</p>`);
+  for (const e of triage(q)) parts.push(`<section class="emergency" role="alert"><h3>${esc(e.title)}</h3><ol>${e.actions.map((a) => `<li>${esc(a)}</li>`).join("")}</ol><p>${esc(e.guidance.join(" · "))}</p></section>`);
+  if (u.tnm) {
+    const s = stage(u.tnm); if (!merged.stage) merged.stage = s.group;
+    parts.push(`<article class="tool"><div class="tool-head"><h3>TNM stage group, 9th edition</h3><span class="verified">Verified tool</span></div><div class="stage-line"><span class="muted">Stage</span><strong>${s.group}</strong><span class="mono">${s.t} ${s.n} ${s.m}</span></div>${s.notes.map((n) => `<p class="note">${esc(n)}</p>`).join("")}</article>`);
+  }
+  if (u.wantsOptions || ctx.histology || ctx.stage) {
+    const m = matchTherapy(merged);
+    if (m.options.length) parts.push(`<article class="tool"><div class="tool-head"><h3>NICE aligned treatment options</h3><span class="verified">Verified tool</span></div><div class="table-wrap"><table><thead><tr><th>Regimen</th><th>NICE</th><th>Status</th></tr></thead><tbody>${m.options.map((o) => `<tr><td>${esc(o.regimen)}${o.evidence ? ` <span class="muted">· <a href="https://pubmed.ncbi.nlm.nih.gov/${o.evidence.pmid}/" target="_blank" rel="noopener">${esc(o.evidence.trial)}</a></span>` : ""}${o.pdl1_min != null && merged.pdl1 == null ? `<div class="note">Requires PD L1 at least ${o.pdl1_min}%.</div>` : ""}</td><td class="mono">${/^(TA|NG)/.test(o.nice.reference) ? `<a href="https://www.nice.org.uk/guidance/${o.nice.reference.split(" ")[0].toLowerCase()}" target="_blank" rel="noopener">${esc(o.nice.reference)}</a>` : esc(o.nice.reference)}</td><td><span class="badge s-${o.nice.status}">${STATUS[o.nice.status]}</span></td></tr>`).join("")}</tbody></table></div><p class="muted">Options for MDT discussion. Confirm against the full appraisal, the SmPC and the local SACT protocol.</p></article>`);
+    else if (u.wantsOptions) parts.push(`<article class="tool needs"><div class="tool-head"><h3>NICE aligned treatment options</h3><span class="verified">Verified tool</span></div><p class="note">Needs a stage or setting and histology to match options.</p></article>`);
+  }
+  if (u.wantsTrials) {
+    const trials = CHUNKS.filter((c) => c.source === "clinical_trial" && c.position === 0 && (!merged.biomarkers.length || (c.biomarkers || []).some((b) => merged.biomarkers.includes(b))));
+    parts.push(`<article class="tool"><div class="tool-head"><h3>Clinical trials to consider</h3><span class="verified">Registry prefilter</span></div>${trials.length ? `<ul class="trials">${trials.slice(0, 6).map((t) => `<li><a class="mono" href="${t.url}" target="_blank" rel="noopener">${esc(t.identifiers.nct)}</a> ${esc(t.title)}<div class="muted">Status not verified in the seed snapshot; refresh from ClinicalTrials.gov before referral.</div></li>`).join("")}</ul>` : `<p class="empty">No registry records in the seed snapshot match this profile.</p>`}</article>`);
+  }
+
+  const results = retrieve(q, u, merged);
+  const inScope = results.length && results[0].score > 0.3 && results[0].coverage >= 0.4;
+  const missingDrug = u.drugs.find((d) => !results.slice(0, 5).some((r) => r.c.text.toLowerCase().includes(d) || r.c.title.toLowerCase().includes(d)));
+  let answer;
+  if (!inScope || missingDrug) {
+    answer = `<section class="answer quiet"><p>The indexed evidence is not strong or specific enough to answer this safely${missingDrug ? ` (no source in the seed snapshot covers ${esc(missingDrug)})` : ""}. Refine the question or consult the full NICE guidance and the MDT.</p></section>`;
+    renderSources([]);
+  } else {
+    const sents = compose(q, results, u, merged);
+    const missing = figuresSupported(sents, results);
+    const cited = new Set(sents.flatMap((s) => [...s.matchAll(/\[(\d+)\]/g)].map((m) => +m[1])));
+    const body = sents.map((s) => esc(s).replace(/\[(\d+)\]/g, (_, i) => `<button class="cite" data-cite="${i}" title="${esc(results[i - 1].c.title)}">${i}</button>`)).join(" ");
+    answer = `<section class="answer" aria-live="polite"><p>${body}</p>${missing.length ? `<p class="note">Figure check: verify ${esc(missing.join(", "))}.</p>` : ""}<p class="judgement">Clinical judgement: these are evidence summaries for MDT discussion; confirm against the cited sources, the full NICE appraisal and the local SACT protocol.</p><div class="meta"><span class="badge s-recommended">Every sentence cited</span><span>${cited.size} sources cited</span><span>Figure check ${missing.length ? "flagged" : "passed"}</span><span>Extractive generator</span></div></section>`;
+    renderSources(results);
+  }
+  parts.push(answer);
+  $("out").innerHTML = parts.join("");
+}
+function renderSources(results) {
+  if (!results.length) { $("sources").innerHTML = `<li class="empty">No sources met the evidence gate.</li>`; return; }
+  const label = { nice_guideline: "NICE guideline", nice_appraisal: "NICE appraisal", pubmed: "PubMed", clinical_trial: "Trial registry", staging_reference: "Staging reference" };
+  $("sources").innerHTML = results.map((r, i) => `<li class="source" id="src-${i + 1}"><div class="source-head"><span class="sid">${i + 1}</span><a href="${r.c.url}" target="_blank" rel="noopener">${esc(r.c.title)}</a></div><div class="tags"><span class="tag">${label[r.c.source] || r.c.source}</span><span class="tag g${r.c.grade}">Grade ${r.c.grade}</span>${r.c.year ? `<span class="tag">${r.c.year}</span>` : ""}<span class="tag">${r.c.jurisdiction}</span>${r.c.superseded_by ? `<span class="tag old">Replaced by ${r.c.superseded_by}</span>` : ""}</div><p class="excerpt">${esc(r.c.text.slice(0, 260))}${r.c.text.length > 260 ? "…" : ""}</p></li>`).join("");
+}
+$("out").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-cite]"); if (!b) return;
+  document.querySelectorAll(".source.active").forEach((n) => n.classList.remove("active"));
+  const t = $("src-" + b.dataset.cite); if (t) { t.classList.add("active"); t.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
+});
+
+const EXAMPLES = [
+  "First line options for stage IVA lung adenocarcinoma with EGFR exon 19 deletion, PS 1?",
+  "What did the FLAURA trial show for osimertinib?",
+  "Mr John Smith, NHS number 943 476 5919, KRAS G12C NSCLC progressed after chemo-immunotherapy: options and trials?",
+  "cT2a N2b M0 adenocarcinoma, what stage is this in the 9th edition?",
+  "Patient on carboplatin and pemetrexed, day 10, temperature 38.6 and rigors",
+  "Is adjuvant osimertinib recommended after resection of stage IIIA L858R NSCLC and for how long?",
+];
+$("examples").innerHTML = EXAMPLES.map((e, i) => `<button type="button" class="example" data-ex="${i}">${esc(e.length > 64 ? e.slice(0, 62) + "…" : e)}</button>`).join("");
+$("examples").addEventListener("click", (e) => { const b = e.target.closest("[data-ex]"); if (!b) return; $("q").value = EXAMPLES[+b.dataset.ex]; ask($("q").value); });
+$("ask").addEventListener("submit", (e) => { e.preventDefault(); if ($("q").value.trim()) ask($("q").value); });
+$("q").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); $("ask").requestSubmit(); } });
+
+const counts = CHUNKS.reduce((a, c) => ((a[c.source] = (a[c.source] || 0) + 1), a), {});
+$("kb").innerHTML = `<span>${DATA.documents} documents</span><span>${CHUNKS.length} passages</span><span>${DATA.therapy.length} NICE aligned options</span><span>Seed built ${esc(DATA.built)}</span>`;
+renderChips();
+$("q").value = EXAMPLES[0];
+ask(EXAMPLES[0]);
+</script>

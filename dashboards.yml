@@ -1,0 +1,7 @@
+apiVersion: 1
+providers:
+  - name: carina
+    folder: Carina Compass
+    type: file
+    options:
+      path: /var/lib/grafana/dashboards

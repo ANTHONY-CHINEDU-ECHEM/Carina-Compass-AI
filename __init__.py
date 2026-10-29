@@ -1,1 +1,1 @@
-"""Hybrid retrieval: dense vectors, BM25, rank fusion, reranking and clinical priors."""
+"""Evaluation harness, metrics and the continuous integration gate."""

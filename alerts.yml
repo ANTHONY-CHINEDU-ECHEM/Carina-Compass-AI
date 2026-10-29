@@ -1,0 +1,42 @@
+groups:
+  - name: carina-clinical-safety
+    rules:
+      - alert: UnsupportedClinicalFigure
+        expr: increase(carina_unsupported_figures_total[15m]) > 0
+        labels: {severity: page}
+        annotations:
+          summary: "An answer contained a clinical figure not found in its cited sources"
+          description: "Review the audit log for the affected request ids and the generating provider."
+
+      - alert: ClaimSupportFalling
+        expr: histogram_quantile(0.10, sum(rate(carina_claim_support_bucket[1h])) by (le)) < 0.7
+        for: 30m
+        labels: {severity: ticket}
+        annotations:
+          summary: "The lowest decile of claim support has fallen below 0.7"
+
+      - alert: AbstentionSpike
+        expr: sum(rate(carina_abstentions_total{reason="evidence"}[30m])) / sum(rate(carina_answers_total[30m])) > 0.35
+        for: 30m
+        labels: {severity: ticket}
+        annotations:
+          summary: "More than a third of questions are abstaining; check the index and retrieval services"
+
+      - alert: ProviderFallbacks
+        expr: sum(increase(carina_provider_fallbacks_total[15m])) by (provider) > 5
+        labels: {severity: ticket}
+        annotations:
+          summary: "Model provider {{ $labels.provider }} is failing and the router is falling back"
+
+      - alert: InjectionChunksDropped
+        expr: increase(carina_injection_chunks_dropped_total[1h]) > 0
+        labels: {severity: ticket}
+        annotations:
+          summary: "Retrieved passages containing instructions were dropped; inspect the ingestion source"
+
+      - alert: SlowAnswers
+        expr: histogram_quantile(0.95, sum(rate(carina_request_seconds_bucket[15m])) by (le)) > 16
+        for: 15m
+        labels: {severity: ticket}
+        annotations:
+          summary: "95th percentile answer latency above 16 seconds"
