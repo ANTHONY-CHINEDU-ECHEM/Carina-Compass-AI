@@ -1,1 +1,1 @@
-"""Language model providers behind a vendor neutral interface."""
+"""Hybrid retrieval: dense vectors, BM25, rank fusion, reranking and clinical priors."""
