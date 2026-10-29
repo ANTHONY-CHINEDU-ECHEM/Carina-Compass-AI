@@ -6,82 +6,82 @@ The carina is the ridge where the trachea divides into the two main bronchi, a l
 
 ## System architecture
 
+
 ```mermaid
-%%{init: {"theme": "neutral", "flowchart": {"nodeSpacing": 45, "rankSpacing": 70, "padding": 12}, "themeVariables": {"fontFamily": "Helvetica, Arial, sans-serif", "fontSize": "14px"}}}%%
 flowchart LR
 
-    %% ───────────── Layer 1 ─────────────
-    subgraph L1["<b>1 · Knowledge Sources</b>"]
+    %% ═════════════ LAYER 1 · KNOWLEDGE SOURCES ═════════════
+    subgraph L1["1 · KNOWLEDGE SOURCES"]
         direction TB
-        NICE["<b>NICE Guidance</b><br/>NG122 and 46 TAs"]
+        NICE["<b>NICE Guidance</b><br/>NG122 · 46 TAs"]
         PDQ["<b>NCI PDQ</b><br/>Evidence summaries"]
         PUBMED["<b>PubMed</b><br/>12 query families"]
-        EPMC["<b>Europe PMC</b><br/>CC BY and CC0 full text"]
+        EPMC["<b>Europe PMC</b><br/>CC BY · CC0 full text"]
         CTGOV["<b>ClinicalTrials.gov</b><br/>API v2"]
         CIVIC["<b>CIViC</b><br/>Variant evidence"]
         FDA["<b>openFDA</b><br/>Safety label sections"]
         MLP["<b>MedlinePlus</b><br/>Patient topics"]
     end
 
-    %% ───────────── Layer 2 ─────────────
-    subgraph L2["<b>2 · Ingestion Pipeline</b>"]
+    %% ═════════════ LAYER 2 · INGESTION PIPELINE ═════════════
+    subgraph L2["2 · INGESTION PIPELINE"]
         direction TB
         HARVEST["<b>Polite Harvest</b><br/>Rate limits · retries · robots.txt"]
         CHECK[("<b>Raw JSONL</b><br/>Checkpoints")]
-        CLEAN["<b>Clean and Tag</b><br/>Biomarkers · histology · setting"]
-        DEDUP["<b>SimHash</b><br/>Deduplication"]
-        CURRENCY["<b>Supersession</b><br/>Graph"]
-        CHUNK["<b>Section-Aware</b><br/>Chunking"]
-        GRADE["<b>Seven-Step</b><br/>Evidence Grading"]
+        CLEAN["<b>Clean and Tag</b><br/>Biomarker · histology · setting"]
+        DEDUP["<b>Deduplication</b><br/>64-bit SimHash"]
+        CURRENCY["<b>Currency</b><br/>Supersession graph"]
+        CHUNK["<b>Chunking</b><br/>Section-aware"]
+        GRADE["<b>Evidence Grading</b><br/>Seven-step ladder"]
     end
 
-    %% ───────────── Layer 3 ─────────────
-    subgraph L3["<b>3 · Knowledge Index</b>"]
+    %% ═════════════ LAYER 3 · KNOWLEDGE INDEX ═════════════
+    subgraph L3["3 · KNOWLEDGE INDEX"]
         direction TB
-        QDRANT[("<b>Qdrant Dense Vectors</b><br/>BGE base embeddings")]
-        BM25[("<b>BM25 Postings</b><br/>Clinical tokenizer")]
-        MANIFEST[("<b>Build Manifest</b><br/>Counts and licences")]
+        QDRANT[("<b>Qdrant</b><br/>Dense vectors · BGE base")]
+        BM25[("<b>BM25</b><br/>Clinical tokenizer")]
+        MANIFEST[("<b>Build Manifest</b><br/>Counts · licences")]
     end
 
-    %% ───────────── Layer 4 ─────────────
-    subgraph L4["<b>4 · Question Answering</b>"]
+    %% ═════════════ LAYER 4 · QUESTION ANSWERING ═════════════
+    subgraph L4["4 · QUESTION ANSWERING"]
         direction TB
         UI["<b>Clinician Interface</b><br/>React · TypeScript"]
         API["<b>FastAPI Gateway</b><br/>Keys · rate limits · SSE"]
         GUARD{{"<b>Guardrails</b><br/>Redaction · triage · scope"}}
-        QU["<b>Query Understanding</b><br/>Entities and synonyms"]
+        QU["<b>Query Understanding</b><br/>Entities · synonyms"]
         HYBRID["<b>Hybrid Retrieval</b><br/>Dense · sparse · RRF"]
         RERANK["<b>Reranker</b><br/>Clinical priors"]
-        GATE{{"<b>Answerability</b><br/>Gate"}}
+        GATE{{"<b>Answerability Gate</b>"}}
         ROUTER["<b>LLM Router</b><br/>Claude · OpenAI · Ollama"]
-        VALID{{"<b>Validators</b><br/>Citation · figure · claim checks"}}
+        VALID{{"<b>Validators</b><br/>Citations · figures · claims"}}
     end
 
-    %% ───────────── Layer 5 ─────────────
-    subgraph L5["<b>5 · Deterministic Clinical Tools</b>"]
+    %% ═════════════ LAYER 5 · DETERMINISTIC CLINICAL TOOLS ═════════════
+    subgraph L5["5 · DETERMINISTIC CLINICAL TOOLS"]
         direction TB
-        STAGE[["<b>TNM 9th Edition</b><br/>Staging"]]
-        THERAPY[["<b>NICE-Aligned</b><br/>Therapy Matcher"]]
-        TRIALS[["<b>Trial</b><br/>Matcher"]]
+        STAGE[["<b>TNM Staging</b><br/>9th edition"]]
+        THERAPY[["<b>Therapy Matcher</b><br/>NICE-aligned"]]
+        TRIALS[["<b>Trial Matcher</b><br/>Registry prefilter"]]
         DOSE[["<b>Dose Checks</b><br/>Calvert · BSA · CrCl"]]
-        SCREEN[["<b>Medication</b><br/>Safety Screen"]]
+        SCREEN[["<b>Safety Screen</b><br/>Medication interactions"]]
     end
 
-    %% ───────────── Layer 6 ─────────────
-    subgraph L6["<b>6 · Governance and Operations</b>"]
+    %% ═════════════ LAYER 6 · GOVERNANCE AND OPERATIONS ═════════════
+    subgraph L6["6 · GOVERNANCE AND OPERATIONS"]
         direction TB
-        AUDIT[("<b>Keyed-Hash</b><br/>Audit Log")]
-        PROM["<b>Prometheus</b><br/>Metrics and alert rules"]
+        AUDIT[("<b>Audit Log</b><br/>Keyed hash")]
+        PROM["<b>Prometheus</b><br/>Metrics · alert rules"]
         GRAF["<b>Grafana</b><br/>Dashboard"]
-        EVAL["<b>Evaluation Gate</b><br/>in CI"]
+        EVAL["<b>Evaluation Gate</b><br/>Continuous integration"]
     end
 
-    %% ───────────── Ingestion flow ─────────────
+    %% ─────────── Ingestion flow ───────────
     NICE & PDQ & PUBMED & EPMC & CTGOV & CIVIC & FDA & MLP --> HARVEST
     HARVEST --> CHECK --> CLEAN --> DEDUP --> CURRENCY --> CHUNK --> GRADE
     GRADE --> QDRANT & BM25 & MANIFEST
 
-    %% ───────────── Question flow ─────────────
+    %% ─────────── Question flow ───────────
     UI -->|"question + context"| API --> GUARD --> QU
     GUARD -.->|"emergency banner first"| UI
     QU --> STAGE & THERAPY & TRIALS & DOSE & SCREEN
@@ -92,10 +92,28 @@ flowchart LR
     HYBRID --> RERANK --> GATE -->|"numbered sources"| ROUTER --> VALID
     VALID -->|"cited answer stream"| UI
 
-    %% ───────────── Governance flow ─────────────
+    %% ─────────── Governance flow ───────────
     VALID --> AUDIT & PROM
     PROM --> GRAF
     AUDIT --> EVAL
+
+    %% ─────────── Monochrome styling: no fills, outlines only ───────────
+    classDef node  fill:none,stroke:#8b949e,stroke-width:1.2px
+    classDef store fill:none,stroke:#8b949e,stroke-width:1.2px
+    classDef gate  fill:none,stroke:#8b949e,stroke-width:2.6px
+    classDef tool  fill:none,stroke:#8b949e,stroke-width:1.2px
+
+    class NICE,PDQ,PUBMED,EPMC,CTGOV,CIVIC,FDA,MLP,HARVEST,CLEAN,DEDUP,CURRENCY,CHUNK,GRADE,UI,API,QU,HYBRID,RERANK,ROUTER,PROM,GRAF,EVAL node
+    class CHECK,QDRANT,BM25,MANIFEST,AUDIT store
+    class GUARD,GATE,VALID gate
+    class STAGE,THERAPY,TRIALS,DOSE,SCREEN tool
+
+    style L1 fill:none,stroke:#8b949e,stroke-width:1px,stroke-dasharray:6 4
+    style L2 fill:none,stroke:#8b949e,stroke-width:1px,stroke-dasharray:6 4
+    style L3 fill:none,stroke:#8b949e,stroke-width:1px,stroke-dasharray:6 4
+    style L4 fill:none,stroke:#8b949e,stroke-width:1px,stroke-dasharray:6 4
+    style L5 fill:none,stroke:#8b949e,stroke-width:1px,stroke-dasharray:6 4
+    style L6 fill:none,stroke:#8b949e,stroke-width:1px,stroke-dasharray:6 4
 ```
 
 The architecture has six layers, numbered in the diagram in the order data and questions flow through them. Amber nodes are external sources, teal cylinders are stores, red nodes are safety gates and green nodes are deterministic tools.
