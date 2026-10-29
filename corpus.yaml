@@ -1,0 +1,126 @@
+# Corpus definition for the full Carina Compass knowledge base.
+#
+# Every source here is a real, public, authoritative API or publication. A full
+# run harvests several hundred thousand records; caps keep development runs
+# fast (make ingest_quick sets a global limit per source).
+
+sources:
+  pubmed:
+    enabled: true
+    batch_size: 200
+    max_per_family: 25000
+    date_filter: '("2005/01/01"[dp] : "3000"[dp])'
+    query_families:
+      egfr: '("Lung Neoplasms"[mh] OR "non-small cell lung"[tiab] OR NSCLC[tiab]) AND (EGFR[tiab] OR osimertinib[tiab] OR gefitinib[tiab] OR erlotinib[tiab] OR afatinib[tiab] OR dacomitinib[tiab] OR amivantamab[tiab] OR lazertinib[tiab])'
+      alk_ros1: '("Lung Neoplasms"[mh] OR NSCLC[tiab]) AND (ALK[tiab] OR ROS1[tiab] OR alectinib[tiab] OR lorlatinib[tiab] OR brigatinib[tiab] OR crizotinib[tiab] OR entrectinib[tiab] OR repotrectinib[tiab])'
+      kras_braf_met_ret_ntrk_her2: '("Lung Neoplasms"[mh] OR NSCLC[tiab]) AND ("KRAS G12C"[tiab] OR sotorasib[tiab] OR adagrasib[tiab] OR BRAF[tiab] OR "MET exon 14"[tiab] OR tepotinib[tiab] OR capmatinib[tiab] OR RET[tiab] OR selpercatinib[tiab] OR NTRK[tiab] OR larotrectinib[tiab] OR HER2[tiab] OR "trastuzumab deruxtecan"[tiab])'
+      immunotherapy_advanced: '("Lung Neoplasms"[mh] OR NSCLC[tiab]) AND (pembrolizumab[tiab] OR nivolumab[tiab] OR atezolizumab[tiab] OR durvalumab[tiab] OR cemiplimab[tiab] OR ipilimumab[tiab] OR "PD-L1"[tiab])'
+      perioperative: '("Lung Neoplasms"[mh] OR NSCLC[tiab]) AND (neoadjuvant[tiab] OR adjuvant[tiab] OR perioperative[tiab]) AND (therapy[sh] OR chemotherapy[tiab] OR immunotherapy[tiab])'
+      surgery: '("Lung Neoplasms/surgery"[mh]) OR ((lobectomy[tiab] OR segmentectomy[tiab] OR "sublobar resection"[tiab]) AND (lung cancer[tiab] OR NSCLC[tiab]))'
+      radiotherapy: '("Lung Neoplasms/radiotherapy"[mh]) OR ((SABR[tiab] OR SBRT[tiab] OR "stereotactic ablative"[tiab] OR chemoradiotherapy[tiab] OR "thoracic radiotherapy"[tiab]) AND (lung cancer[tiab] OR NSCLC[tiab]))'
+      stage3: '("Lung Neoplasms"[mh] OR NSCLC[tiab]) AND ("stage III"[tiab] OR unresectable[tiab] OR "locally advanced"[tiab])'
+      small_cell: '("Small Cell Lung Carcinoma"[mh] OR "small cell lung cancer"[tiab] OR SCLC[tiab])'
+      staging_diagnosis: '("Lung Neoplasms/diagnosis"[mh] OR "Neoplasm Staging"[mh]) AND ("lung cancer"[tiab] OR NSCLC[tiab]) AND (TNM[tiab] OR EBUS[tiab] OR "PET-CT"[tiab] OR "mediastinal staging"[tiab])'
+      toxicity_supportive: '("Lung Neoplasms"[mh] OR NSCLC[tiab] OR SCLC[tiab]) AND (pneumonitis[tiab] OR "immune-related adverse"[tiab] OR "interstitial lung disease"[tiab] OR "neutropenic"[tiab] OR "brain metastases"[tiab] OR "spinal cord compression"[tiab])'
+      mesothelioma: '"Mesothelioma, Malignant"[mh] OR "pleural mesothelioma"[tiab]'
+
+  europe_pmc:
+    enabled: true
+    rate_per_s: 5
+    queries:
+      - '"non-small cell lung cancer" AND (treatment OR therapy)'
+      - '"small cell lung cancer" AND (treatment OR therapy)'
+      - '"lung cancer" AND (immunotherapy OR "targeted therapy" OR radiotherapy)'
+
+  clinical_trials:
+    enabled: true
+    conditions:
+      - "Non-small Cell Lung Cancer"
+      - "Small Cell Lung Cancer"
+      - "Lung Cancer"
+      - "Pleural Mesothelioma"
+    statuses: []   # empty harvests every status; the matcher filters open studies
+
+  civic:
+    enabled: true
+    url: "https://civicdb.org/downloads/nightly/nightly-ClinicalEvidenceSummaries.tsv"
+    diseases:
+      - "Lung Non-small Cell Carcinoma"
+      - "Lung Adenocarcinoma"
+      - "Lung Squamous Cell Carcinoma"
+      - "Lung Small Cell Carcinoma"
+      - "Lung Carcinoma"
+      - "Lung Cancer"
+      - "Non-small Cell Lung Carcinoma"
+
+  openfda:
+    enabled: true
+    drugs: [osimertinib, erlotinib, gefitinib, afatinib, dacomitinib, amivantamab, lazertinib, alectinib, brigatinib,
+            lorlatinib, crizotinib, ceritinib, entrectinib, repotrectinib, larotrectinib, sotorasib, adagrasib,
+            dabrafenib, trametinib, tepotinib, capmatinib, selpercatinib, pralsetinib, fam-trastuzumab deruxtecan-nxki,
+            pembrolizumab, nivolumab, ipilimumab, atezolizumab, durvalumab, cemiplimab, tremelimumab, tarlatamab,
+            pemetrexed, docetaxel, paclitaxel, carboplatin, cisplatin, etoposide, topotecan, gemcitabine, vinorelbine,
+            bevacizumab, ramucirumab, nintedanib, denosumab]
+
+  nice:
+    enabled: true
+    api_base: "https://api.nice.org.uk/services"
+    endpoint_template: "{base}/content/guidance/{id}"
+    products:
+      - {id: NG122, title: "Lung cancer: diagnosis and management"}
+      - {id: NG12, title: "Suspected cancer: recognition and referral"}
+      - {id: CG151, title: "Neutropenic sepsis"}
+      - {id: NG234, title: "Spinal metastases and metastatic spinal cord compression"}
+      - {id: TA654}
+      - {id: TA1043}
+      - {id: TA653}
+      - {id: TA536}
+      - {id: TA909}
+      - {id: TA670}
+      - {id: TA1014}
+      - {id: TA1021}
+      - {id: TA643}
+      - {id: TA781}
+      - {id: TA898}
+      - {id: TA789}
+      - {id: TA911}
+      - {id: TA760}
+      - {id: TA630}
+      - {id: TA531}
+      - {id: TA705}
+      - {id: TA683}
+      - {id: TA770}
+      - {id: TA584}
+      - {id: TA798}
+      - {id: TA876}
+      - {id: TA1017}
+      - {id: TA1030}
+      - {id: TA1037}
+      - {id: TA1071}
+      - {id: TA713}
+      - {id: TA655}
+      - {id: TA520}
+      - {id: TA428}
+      - {id: TA347}
+      - {id: TA638}
+      - {id: TA1041}
+      - {id: TA1099}
+      - {id: TA184}
+      - {id: TA1091}
+
+  nci_pdq:
+    enabled: true
+    pages:
+      - id: nsclc_treatment_hp
+        title: "Non-Small Cell Lung Cancer Treatment (PDQ), Health Professional Version"
+        url: "https://www.cancer.gov/types/lung/hp/non-small-cell-lung-treatment-pdq"
+      - id: sclc_treatment_hp
+        title: "Small Cell Lung Cancer Treatment (PDQ), Health Professional Version"
+        url: "https://www.cancer.gov/types/lung/hp/small-cell-lung-treatment-pdq"
+      - id: mesothelioma_treatment_hp
+        title: "Malignant Mesothelioma Treatment (PDQ), Health Professional Version"
+        url: "https://www.cancer.gov/types/mesothelioma/hp/mesothelioma-treatment-pdq"
+
+  medlineplus:
+    enabled: true
+    terms: ["lung cancer", "small cell lung cancer", "non small cell lung cancer", "mesothelioma"]
