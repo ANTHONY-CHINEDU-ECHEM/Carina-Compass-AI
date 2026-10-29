@@ -1,0 +1,78 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "carina-compass-ai"
+version = "1.0.0"
+description = "Evidence grounded decision support for lung cancer treatment, built on retrieval augmented generation over real, licence tracked clinical knowledge."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Framework :: FastAPI",
+  "Topic :: Scientific/Engineering :: Medical Science Apps.",
+  "Intended Audience :: Healthcare Industry",
+]
+dependencies = [
+  "fastapi>=0.111",
+  "uvicorn[standard]>=0.30",
+  "pydantic>=2.7",
+  "pydantic-settings>=2.7",
+  "httpx>=0.27",
+  "pyyaml>=6.0",
+  "numpy>=1.26",
+  "prometheus-client>=0.20",
+]
+
+[project.optional-dependencies]
+llm = ["anthropic>=0.40", "openai>=1.40"]
+ml = ["sentence-transformers>=3.0", "torch>=2.2"]
+stores = ["qdrant-client>=1.9", "redis>=5.0"]
+dev = ["pytest>=8.2", "pytest-asyncio>=0.23", "pytest-cov>=5.0", "ruff>=0.5", "mypy>=1.10", "types-PyYAML"]
+all = ["carina-compass-ai[llm,ml,stores]"]
+
+[project.scripts]
+carina = "carina.cli:main"
+carina-ingest = "ingestion.cli:main"
+carina-eval = "evaluation.harness:main"
+
+[tool.setuptools.packages.find]
+where = ["backend", "."]
+include = ["carina*", "ingestion*", "evaluation*"]
+
+[tool.setuptools.package-data]
+carina = ["knowledge/*.yaml"]
+ingestion = ["config/*.yaml", "data/seed/*.jsonl"]
+evaluation = ["*.jsonl", "*.yaml"]
+
+[tool.pytest.ini_options]
+pythonpath = ["backend", "."]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.coverage.run]
+source = ["backend/carina", "ingestion", "evaluation"]
+omit = ["*/llm/anthropic_provider.py", "*/llm/openai_provider.py", "*/sources/*"]
+
+[tool.ruff]
+line-length = 160
+target-version = "py311"
+src = ["backend", "."]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "BLE"]
+ignore = ["RUF001", "RUF002", "RUF003", "B008", "SIM108", "RUF012", "E501", "UP042", "RUF005", "SIM102", "RUF007"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["carina", "ingestion", "evaluation"]
+
+[tool.mypy]
+python_version = "3.11"
+mypy_path = ["backend", "."]
+ignore_missing_imports = true
+warn_unused_ignores = false
+check_untyped_defs = true
